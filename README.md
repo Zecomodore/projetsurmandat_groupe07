@@ -14,3 +14,16 @@ Titre du commit
 
 Description de notre commit avec des informations sur l'évolution du projet
 ```
+
+## Envoyer un commit sur le dépôt distant
+```bash
+ git add . // git add README.md test.md ...
+ git status
+ git commit
+ git push origin master
+```
+
+## Envoyer un commit sur le dépôt distant
+```bash
+ git checkout -b NOM_BRANCHE
+```
