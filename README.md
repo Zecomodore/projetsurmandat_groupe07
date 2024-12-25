@@ -27,3 +27,13 @@ Description de notre commit avec des informations sur l'évolution du projet
 ```bash
  git checkout -b NOM_BRANCHE
 ```
+
+## Mettre les informations de la branche "develop" dans la branche "master"
+Dans la branche "develop"
+```bash
+ git merge develop
+```
+Dans la branche "master"
+```bash
+ git push origin master
+```
