@@ -1,4 +1,4 @@
-# Documentation
+# Documentation pour github
 
 ## Initialisation du dépôt
 
