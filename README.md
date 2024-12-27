@@ -23,7 +23,7 @@ Description de notre commit avec des informations sur l'évolution du projet
  git push origin master
 ```
 
-## Envoyer un commit sur le dépôt distant
+## Créer une nouvelle branche
 ```bash
  git checkout -b NOM_BRANCHE
 ```
