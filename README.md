@@ -26,7 +26,7 @@ Appuyer sur "esc" pour sortir de l'interface.
  git push origin master
 ```
 
-## Envoyer un commit sur le dépôt distant
+## Créer une nouvelle branche
 ```bash
  git checkout -b NOM_BRANCHE
 ```
