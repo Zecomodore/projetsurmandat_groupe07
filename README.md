@@ -1,11 +1,7 @@
 # Documentation pour github
 
-## Initialisation du dépôt
-
-```bash
- git init
- git remote add origin https://github.com/Zecomodore/projetsurmandat_groupe07.git
-```
+## Espace de développement pour Bryan
+Espace dédié pour le développement des fonctionnalités que Bryan gérera
 
 ## Rédiger un commit
 Dans l'interface commit -> appuyer sur i pour insérer le titre et la description
@@ -23,7 +19,7 @@ Appuyer sur "esc" pour sortir de l'interface.
  git add . // git add README.md test.md ...
  git status
  git commit
- git push origin master
+ git push origin develop_bryan
 ```
 
 ## Créer une nouvelle branche
@@ -34,11 +30,9 @@ Appuyer sur "esc" pour sortir de l'interface.
 ## Mettre les informations de la branche "develop" dans la branche "master"
 Dans la branche "develop"
 ```bash
- git merge develop
+ git merge develop_bryan
 ```
 Dans la branche "master"
 ```bash
  git push origin master
 ```
-
-Pour les bonne pratique, on va intégrer la notion de revue de code. Pour cela, on va créer une branche, faire des modifications, les envoyer sur le dépôt distant, puis créer une pull request pour demande une revue de code
