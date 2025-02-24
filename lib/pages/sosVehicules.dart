@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import 'detailsAlerte.dart';
+import 'detailsAlerteVehicule.dart';
 
-class SosPage extends StatefulWidget {
-  const SosPage({super.key});
+class SosVehiculePage extends StatefulWidget {
+  const SosVehiculePage({super.key});
 
   @override
-  State<SosPage> createState() => _SosPageState();
+  State<SosVehiculePage> createState() => _SosVehiculePageState();
 }
 
-class _SosPageState extends State<SosPage> {
+class _SosVehiculePageState extends State<SosVehiculePage> {
   // Liste des alertes avec des données dynamiques à remplacer par des requetes API
   final List<Map<String, String>> alertes = [
     {
       'type': 'Chat coincé dans un arbre',
       'heure': '12:00',
-      'adresse': '12 rue de la paix'
+      'adresse': 'Chemin du Village de Perly 16'
     },
     {
       'type': 'Feu de poubelle',
       'heure': '14:30',
-      'adresse': '45 avenue des Champs'
+      'adresse': 'Pont de Lully Bernex'
     },
     {
       'type': 'Accident de voiture',
@@ -56,30 +56,7 @@ class _SosPageState extends State<SosPage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(
-                    const Color.fromARGB(255, 251, 7, 7)),
-                minimumSize: WidgetStateProperty.all<Size>(const Size(400, 50)),
-                elevation: WidgetStateProperty.all<double>(18),
-                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/creationAlerte');
-              },
-              child: const Text(
-                'Créer une nouvelle alerte',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 10),
             const Text(
               'Alertes en cours',
               style: TextStyle(
@@ -137,11 +114,9 @@ class SosCard extends StatelessWidget {
             children: [
               Text('Type : $type'),
               Text('Heure : $heure'),
-              Text('Adresse : $adresse'),
             ],
           ),
           const Spacer(),
-          /*
           ElevatedButton(
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(
@@ -157,7 +132,7 @@ class SosCard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailsAlerte(
+                  builder: (context) => DetailsAlerteVehicule(
                     type: type,
                     heure: heure,
                     adresse: adresse,
@@ -173,22 +148,6 @@ class SosCard extends StatelessWidget {
               ),
             ),
           )
-          */
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsAlerte(
-                    type: type,
-                    heure: heure,
-                    adresse: adresse,
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.info, color: Color.fromARGB(255, 251, 7, 7)),
-          ),
         ],
       ),
     );

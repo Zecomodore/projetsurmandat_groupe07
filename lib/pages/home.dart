@@ -105,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      Navigator.pushNamed(context, '/sosVehicules');
                       //mettre navigation
                     },
                     child: Container(

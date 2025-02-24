@@ -8,6 +8,7 @@ import 'pages/espacePersonel.dart';
 import 'pages/sos.dart';
 import 'pages/creationAlerte.dart';
 import 'pages/sosPompier.dart';
+import 'pages/sosVehicules.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         '/sos': (context) => const SosPage(),
         '/creationAlerte': (context) => const CreationAlerte(),
         '/sosPompier': (context) => const SosPompierPage(),
+        '/sosVehicules': (context) => const SosVehiculePage(),
       },
     );
   }

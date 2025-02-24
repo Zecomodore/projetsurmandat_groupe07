@@ -83,50 +83,53 @@ class _CreationAlerteState extends State<CreationAlerte> {
           color: Colors.white,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const Text(
-              'Information alerte',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              const Text(
+                'Information alerte',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Champs de texte avec contrôleurs
-            buildTextField('Titre de l\'alerte', 5, titreController),
-            buildTextField('Adresse de l\'alerte', 3, adresseController),
-            buildTextField(
-                'Informations complémentaires (facultatif)', 8, infoController),
+              // Champs de texte avec contrôleurs
+              buildTextField('Titre de l\'alerte', 5, titreController),
+              buildTextField('Adresse de l\'alerte', 3, adresseController),
+              buildTextField('Informations complémentaires (facultatif)', 8,
+                  infoController),
 
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(
-                    const Color.fromARGB(255, 251, 7, 7)),
-                minimumSize: WidgetStateProperty.all<Size>(const Size(400, 50)),
-                elevation: WidgetStateProperty.all<double>(18),
-                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all<Color>(
+                      const Color.fromARGB(255, 251, 7, 7)),
+                  minimumSize:
+                      WidgetStateProperty.all<Size>(const Size(400, 50)),
+                  elevation: WidgetStateProperty.all<double>(18),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  envoyerAlerte();
+                  Navigator.pop(context);
+                }, // Appelle la fonction lors du clic
+                child: const Text(
+                  'Envoyer l\'alerte',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              onPressed: () {
-                envoyerAlerte();
-                Navigator.pop(context);
-              }, // Appelle la fonction lors du clic
-              child: const Text(
-                'Envoyer l\'alerte',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

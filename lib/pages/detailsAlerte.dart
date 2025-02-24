@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailsAlerte extends StatefulWidget {
   final String type;
@@ -30,6 +31,25 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
     'Véhicule 1',
     'Véhicule 2',
   ];
+
+  void _openGoogleMaps(String adresse) async {
+    Uri googleUrl;
+
+    if (Uri.tryParse(adresse) != null) {
+      if (await canLaunchUrl(
+          Uri.parse("geo:0,0?q=${Uri.encodeComponent(adresse)}"))) {
+        googleUrl =
+            Uri.parse("geo:0,0?q=${Uri.encodeComponent(adresse)}"); // Android
+      } else {
+        googleUrl = Uri.parse(
+            "https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(adresse)}"); // Web/iOS
+      }
+
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw "Adresse non valide";
+    }
+  }
 
   void _showRenfortPopup() {
     showDialog(
@@ -87,123 +107,133 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
         backgroundColor: const Color.fromARGB(255, 251, 7, 7),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Type : ${widget.type}',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Heure : ${widget.heure}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Adresse : ${widget.adresse}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 30),
-            Text(
-              'Nombre de personne présente : ${personnes.length}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Type : ${widget.type}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              padding: const EdgeInsets.all(10),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: personnes.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    visualDensity: const VisualDensity(vertical: -4),
-                    leading: const Icon(Icons.person),
-                    title: Text(
-                        '${personnes[index]['prenom']} ${personnes[index]['nom']}'),
-                  );
+              const SizedBox(height: 10),
+              Text(
+                'Heure : ${widget.heure}',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Adresse : ${widget.adresse}',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  _openGoogleMaps(widget.adresse);
                 },
+                child: Text("Voir sur Google Maps"),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Nombre de véhicule présent : ${vehicules.length}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 20),
+              Text(
+                'Nombre de personne présente : ${personnes.length}',
+                style: const TextStyle(fontSize: 18),
               ),
-              padding: const EdgeInsets.all(10),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: vehicules.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    visualDensity: const VisualDensity(vertical: -4),
-                    leading: const Icon(Icons.directions_car),
-                    title: Text('${vehicules[index]}'),
-                  );
-                },
+              const SizedBox(height: 10),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: personnes.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      visualDensity: const VisualDensity(vertical: -4),
+                      leading: const Icon(Icons.person),
+                      title: Text(
+                          '${personnes[index]['prenom']} ${personnes[index]['nom']}'),
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      const Color.fromARGB(255, 251, 7, 7)),
-                  minimumSize:
-                      WidgetStateProperty.all<Size>(const Size(400, 50)),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 20),
+              Text(
+                'Nombre de véhicule présent : ${vehicules.length}',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.all(10),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: vehicules.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      visualDensity: const VisualDensity(vertical: -4),
+                      leading: const Icon(Icons.directions_car),
+                      title: Text('${vehicules[index]}'),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        const Color.fromARGB(255, 251, 7, 7)),
+                    minimumSize:
+                        WidgetStateProperty.all<Size>(const Size(400, 50)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
-                onPressed: () {
-                  _showRenfortPopup();
-                },
-                child: Text(
-                  'Demande de renfort',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                )),
-            SizedBox(height: 25),
-            ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      const Color.fromARGB(255, 251, 7, 7)),
-                  minimumSize:
-                      WidgetStateProperty.all<Size>(const Size(400, 50)),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  onPressed: () {
+                    _showRenfortPopup();
+                  },
+                  child: Text(
+                    'Demande de renfort',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  )),
+              SizedBox(height: 25),
+              ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                        const Color.fromARGB(255, 251, 7, 7)),
+                    minimumSize:
+                        WidgetStateProperty.all<Size>(const Size(400, 50)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Alerte terminer',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                )),
-          ],
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Alerte terminer',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  )),
+            ],
+          ),
         ),
       ),
     );
