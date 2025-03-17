@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'detailsAlertePompier.dart';
+import 'details_alerte_vehicule.dart';
+import 'package:dio/dio.dart';
+import 'personne_varaible.dart';
 
-class SosPompierPage extends StatefulWidget {
-  const SosPompierPage({super.key});
+class SosVehiculePage extends StatefulWidget {
+  const SosVehiculePage({super.key});
 
   @override
-  State<SosPompierPage> createState() => _SosPompierPageState();
+  State<SosVehiculePage> createState() => _SosVehiculePageState();
 }
 
-class _SosPompierPageState extends State<SosPompierPage> {
+class _SosVehiculePageState extends State<SosVehiculePage> {
   // Liste des alertes avec des données dynamiques à remplacer par des requetes API
+  /*
   final List<Map<String, String>> alertes = [
     {
       'type': 'Chat coincé dans un arbre',
@@ -32,8 +35,36 @@ class _SosPompierPageState extends State<SosPompierPage> {
       'adresse': '8 boulevard Haussmann'
     },
   ];
+  */
+  List alertes = [];
+  Future<void> getIntervention() async {
+    try {
+      String token = PersonneVaraible().token;
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get("/interventions");
+      setState(() {
+        alertes = response.data;
+      });
+    } catch (e) {
+      print('Erreur lors du téléchargement des alertes: $e');
+    }
+  }
 
   @override
+  void initState() {
+    super.initState();
+    getIntervention();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,9 +103,9 @@ class _SosPompierPageState extends State<SosPompierPage> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: SosCard(
-                      type: alertes[index]['type']!,
-                      heure: alertes[index]['heure']!,
-                      adresse: alertes[index]['adresse']!,
+                      type: alertes[index]['int_description']!,
+                      heure: alertes[index]['int_heure']!,
+                      adresse: alertes[index]['int_adresse']!,
                     ),
                   );
                 },
@@ -132,7 +163,7 @@ class SosCard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailsAlertePompier(
+                  builder: (context) => DetailsAlerteVehicule(
                     type: type,
                     heure: heure,
                     adresse: adresse,

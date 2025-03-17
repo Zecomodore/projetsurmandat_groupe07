@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'personne_varaible.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,9 +12,43 @@ class LoginPage extends StatefulWidget {
 }
 
 class _MyLoginPage extends State<LoginPage> {
+  final dio = Dio();
+
   String userName = '';
   String password = '';
   bool _obscurePassword = true;
+
+  Future<void> login({String? email, String? password}) async {
+    // Code pour la connexion
+    try {
+      final response = await dio.post(
+        //http://10.0.2.2:8000/api/auth pour l'émulateur android apple 127.0.0.1
+        'http://10.0.2.2:8000/api/auth',
+        queryParameters: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['token'] != null) {
+        setState(() {
+          PersonneVaraible().token = response.data['token'];
+          PersonneVaraible().nameType = response.data['name'];
+          PersonneVaraible().userId = response.data['userId'];
+        });
+      } else {
+        throw Exception('Utillisateurs ou mot de passe incorrect');
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Utillisateurs ou mot de passe incorrect'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +152,14 @@ class _MyLoginPage extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/home');
+                  onPressed: () async {
+                    await login(email: userName, password: password);
+                    if (PersonneVaraible().token.isNotEmpty) {
+                      print(
+                          'Connexion réussie : ${PersonneVaraible().token} ${PersonneVaraible().nameType} ${PersonneVaraible().userId}');
+                      Navigator.pushNamed(context, '/home');
+                    }
+                    //Navigator.pushNamed(context, '/home');
                   },
                   child: const Text(
                     "Se connecter",

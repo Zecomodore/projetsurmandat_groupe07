@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'detailsAlerteVehicule.dart';
+import 'details_alerte_pompier.dart';
+import 'package:dio/dio.dart';
+import 'personne_varaible.dart';
 
-class SosVehiculePage extends StatefulWidget {
-  const SosVehiculePage({super.key});
+class SosPompierPage extends StatefulWidget {
+  const SosPompierPage({super.key});
 
   @override
-  State<SosVehiculePage> createState() => _SosVehiculePageState();
+  State<SosPompierPage> createState() => _SosPompierPageState();
 }
 
-class _SosVehiculePageState extends State<SosVehiculePage> {
+class _SosPompierPageState extends State<SosPompierPage> {
   // Liste des alertes avec des données dynamiques à remplacer par des requetes API
+  /*
   final List<Map<String, String>> alertes = [
     {
       'type': 'Chat coincé dans un arbre',
@@ -32,8 +35,36 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
       'adresse': '8 boulevard Haussmann'
     },
   ];
+  */
+  List alertes = [];
+  Future<void> getIntervention() async {
+    try {
+      String token = PersonneVaraible().token;
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get("/interventions");
+      setState(() {
+        alertes = response.data;
+      });
+    } catch (e) {
+      print('Erreur lors du téléchargement des alertes: $e');
+    }
+  }
 
   @override
+  void initState() {
+    super.initState();
+    getIntervention();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,9 +103,10 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: SosCard(
-                      type: alertes[index]['type']!,
-                      heure: alertes[index]['heure']!,
-                      adresse: alertes[index]['adresse']!,
+                      type: alertes[index]['int_description']!,
+                      heure: alertes[index]['int_heure']!,
+                      adresse: alertes[index]['int_adresse']!,
+                      id: alertes[index]['int_no']!,
                     ),
                   );
                 },
@@ -91,12 +123,14 @@ class SosCard extends StatelessWidget {
   final String type;
   final String heure;
   final String adresse;
+  final int id;
 
   const SosCard({
     super.key,
     required this.type,
     required this.heure,
     required this.adresse,
+    required this.id,
   });
 
   @override
@@ -117,37 +151,22 @@ class SosCard extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(
-                  const Color.fromARGB(255, 251, 7, 7)),
-              minimumSize: WidgetStateProperty.all<Size>(const Size(100, 50)),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
+          IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailsAlerteVehicule(
+                  builder: (context) => DetailsAlertePompier(
                     type: type,
                     heure: heure,
                     adresse: adresse,
+                    idIntervention: id,
                   ),
                 ),
               );
             },
-            child: const Text(
-              'Détails',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.white,
-              ),
-            ),
-          )
+            icon: const Icon(Icons.info, color: Color.fromARGB(255, 251, 7, 7)),
+          ),
         ],
       ),
     );

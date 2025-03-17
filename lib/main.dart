@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'pages/login.dart';
-import 'pages/motDePasseOublier.dart';
-import 'pages/validationCodeMail.dart';
-import 'pages/changerMotDePasse.dart';
+import 'pages/mot_de_passe_oublier.dart';
+import 'pages/validation_code_mail.dart';
+import 'pages/changer_mot_de_passe.dart';
 import 'pages/home.dart';
-import 'pages/espacePersonel.dart';
+import 'pages/espace_personel.dart';
 import 'pages/sos.dart';
-import 'pages/creationAlerte.dart';
-import 'pages/sosPompier.dart';
-import 'pages/sosVehicules.dart';
+import 'pages/creation_alerte.dart';
+import 'pages/sos_pompier.dart';
+import 'pages/sos_vehicules.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'personne_varaible.dart';
+import 'package:dio/dio.dart';
 
 class DetailsAlertePompier extends StatefulWidget {
   final String type;
   final String heure;
   final String adresse;
+  final int idIntervention;
 
   const DetailsAlertePompier({
     super.key,
     required this.type,
     required this.heure,
     required this.adresse,
+    required this.idIntervention,
   });
 
   @override
@@ -20,6 +24,7 @@ class DetailsAlertePompier extends StatefulWidget {
 class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
   var disponibleColor = const Color.fromARGB(255, 3, 183, 60);
   var indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
+  bool? isAvailable;
 
   void _openGoogleMaps(String adresse) async {
     Uri googleUrl;
@@ -38,6 +43,145 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
     } else {
       throw "Adresse non valide";
     }
+  }
+
+  void pompierDisponible() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/interventions/ajout/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.idIntervention
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isAvailable = false;
+          disponibleColor = const Color.fromARGB(255, 76, 76, 76);
+        });
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Le chargement a échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void pompierEtat() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get(
+        "/interventions/etat/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.idIntervention
+        },
+      );
+
+      if (response.statusCode == 200) {
+        bool data = response.data;
+        setState(() {
+          if (data == true) {
+            isAvailable = false;
+            disponibleColor = const Color.fromARGB(255, 76, 76, 76);
+          } else {
+            isAvailable = true;
+            disponibleColor = const Color.fromARGB(255, 3, 183, 60);
+          }
+        });
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Le chargement a échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void finIntervention() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.delete(
+        "/interventions/supprimer/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.idIntervention
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          Navigator.pop(context);
+        });
+      } else {
+        throw Exception("Erreur lors du la connexion");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("L'action à échoué"), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    pompierEtat();
   }
 
   @override
@@ -79,8 +223,9 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                   ),
                   onPressed: () {
                     setState(() {
-                      disponibleColor = const Color.fromARGB(255, 3, 183, 60);
-                      indisponibleColor = const Color.fromARGB(255, 76, 76, 76);
+                      if (isAvailable == true || isAvailable == null) {
+                        pompierDisponible();
+                      }
                     });
                   },
                   child: Text('Disponible',
@@ -89,6 +234,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                         color: Colors.white,
                       )),
                 ),
+                /*
                 ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor:
@@ -113,6 +259,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                         color: Colors.white,
                       )),
                 ),
+                */
               ],
             ),
             SizedBox(height: 20),
@@ -151,10 +298,10 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  finIntervention();
                 },
                 child: Text(
-                  'Alerte terminer',
+                  'Intervention terminer',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,

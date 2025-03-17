@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'personne_varaible.dart';
 
 class CreationAlerte extends StatefulWidget {
   const CreationAlerte({super.key});
@@ -51,17 +53,51 @@ class _CreationAlerteState extends State<CreationAlerte> {
   }
 
   // Fonction appelée lors de l'envoi de l'alerte
-  void envoyerAlerte() {
+  void envoyerAlerte() async {
     String titre = titreController.text;
     String adresse = adresseController.text;
     String info = infoController.text;
 
     // Affichage des valeurs dans la console (peut être remplacé par une API)
-    print("Titre de l'alerte: $titre");
-    print("Adresse: $adresse");
-    print("Informations complémentaires: $info");
 
-    // Ici, tu peux ajouter la logique pour envoyer les données à une API
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/interventions",
+        queryParameters: {
+          'int_description': titre,
+          'int_adresse': adresse,
+          'int_commentaire': info,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+      } else {
+        throw Exception("Erreur lors de la déconnexion");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Envoie de l'intervention à échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -118,7 +154,6 @@ class _CreationAlerteState extends State<CreationAlerte> {
                 ),
                 onPressed: () {
                   envoyerAlerte();
-                  Navigator.pop(context);
                 }, // Appelle la fonction lors du clic
                 child: const Text(
                   'Envoyer l\'alerte',
