@@ -41,7 +41,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
     try {
       String token = PersonneVaraible().token;
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -106,6 +106,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
                       type: alertes[index]['int_description']!,
                       heure: alertes[index]['int_heure']!,
                       adresse: alertes[index]['int_adresse']!,
+                      id: alertes[index]['int_no']!,
                     ),
                   );
                 },
@@ -122,12 +123,14 @@ class SosCard extends StatelessWidget {
   final String type;
   final String heure;
   final String adresse;
+  final int id;
 
   const SosCard({
     super.key,
     required this.type,
     required this.heure,
     required this.adresse,
+    required this.id,
   });
 
   @override
@@ -167,6 +170,7 @@ class SosCard extends StatelessWidget {
                     type: type,
                     heure: heure,
                     adresse: adresse,
+                    idIntervention: id,
                   ),
                 ),
               );

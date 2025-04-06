@@ -1,7 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'validation_code_mail.dart';
 
-class Motdepasseoublier extends StatelessWidget {
+class Motdepasseoublier extends StatefulWidget {
   const Motdepasseoublier({super.key});
+
+  @override
+  State<Motdepasseoublier> createState() => _MotdepasseoublierState();
+}
+
+class _MotdepasseoublierState extends State<Motdepasseoublier> {
+  String mail = ''; // Variable pour stocker l'adresse e-mail saisie
+  final dio = Dio(); // Instance de Dio pour les requêtes HTTP
+
+  Future<void> demandeCode({
+    String? email,
+  }) async {
+    // Code pour la connexion
+    try {
+      final response = await dio.post(
+        //http://10.0.2.2:8000/api/auth pour l'émulateur android
+        'http://127.0.0.1:8000/api/envoie',
+        queryParameters: {
+          'email': email,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ValidationCodeMail(
+              mail: email!,
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Mail incorrect');
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mail incorrect'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +100,7 @@ class Motdepasseoublier extends StatelessWidget {
                       ),
                     ),
                   ),
+                  onChanged: (value) => setState(() => mail = value),
                 ),
               ),
               const SizedBox(height: 30),
@@ -61,7 +108,12 @@ class Motdepasseoublier extends StatelessWidget {
                 width: 350, // Largeur fixe pour le bouton
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/validationCodeMail');
+                    print(
+                        'Voici le mail ------------------------------------------' +
+                            mail); // Affiche l'adresse e-mail dans la console
+                    demandeCode(
+                        email:
+                            mail); // Appel de la fonction pour envoyer le mail
                     // Ajouter le code pour envoyer un e-mail de réinitialisation
                   },
                   style: ElevatedButton.styleFrom(

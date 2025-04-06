@@ -1,7 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'personne_varaible.dart';
 
-class ValidationCodeMail extends StatelessWidget {
-  const ValidationCodeMail({super.key});
+class ValidationCodeMail extends StatefulWidget {
+  final String mail;
+
+  const ValidationCodeMail({
+    super.key,
+    required this.mail,
+  });
+
+  @override
+  State<ValidationCodeMail> createState() => _ValidationCodeMailState();
+}
+
+class _ValidationCodeMailState extends State<ValidationCodeMail> {
+  Dio dio = Dio(); // Instance de Dio pour les requêtes HTTP
+  String code = ''; // Variable pour stocker le code de validation
+
+  Future<void> verificationCode({
+    String? codeRecus,
+  }) async {
+    // Code pour la connexion
+    try {
+      final response = await dio.post(
+        //http://10.0.2.2:8000/api/auth pour l'émulateur android
+        'http://127.0.0.1:8000/api/validation',
+        data: {
+          'code': codeRecus,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = response
+            .data['original']; // Récupérer les données depuis "original"
+
+        setState(() {
+          PersonneVaraible().token =
+              data['token']; // Correctement extrait depuis "original"
+          PersonneVaraible().nameType = data['name'];
+          PersonneVaraible().userId = data['userId'];
+        });
+        //Navigator.pushNamed(context, '/changerMotDePasse');
+      } else {
+        throw Exception('Code incorrect ${response.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Code incorrect '),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> demandeCode({
+    String? email,
+  }) async {
+    // Code pour la connexion
+    try {
+      final response = await dio.post(
+        //http://10.0.2.2:8000/api/auth pour l'émulateur android
+        'http://127.0.0.1:8000/api/envoie',
+        queryParameters: {
+          'email': email,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Demande effectuer'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        throw Exception('Mail incorrect');
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mail incorrect'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +141,7 @@ class ValidationCodeMail extends StatelessWidget {
                       ),
                     ),
                   ),
+                  onChanged: (value) => setState(() => code = value),
                 ),
               ),
               const SizedBox(height: 30),
@@ -61,8 +149,13 @@ class ValidationCodeMail extends StatelessWidget {
                 width: 350, // Largeur fixe pour le bouton
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/changerMotDePasse');
-
+                    verificationCode(
+                        codeRecus: code); // Appel de la méthode de vérification
+                    if (PersonneVaraible().token.isNotEmpty) {
+                      print(
+                          'Connexion réussie : ${PersonneVaraible().token} ${PersonneVaraible().nameType} ${PersonneVaraible().userId}');
+                      Navigator.pushNamed(context, '/changerMotDePasse');
+                    }
                     // mettre la méthode de vérification du code de validation
                   },
                   style: ElevatedButton.styleFrom(
@@ -106,7 +199,9 @@ class ValidationCodeMail extends StatelessWidget {
                 width: 350, // Largeur fixe pour le bouton
                 child: ElevatedButton(
                   onPressed: () {
-                    // Ajouter le code pour envoyer un e-mail de réinitialisation
+                    demandeCode(
+                        email: widget
+                            .mail); // Appel de la méthode de demande de code
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
