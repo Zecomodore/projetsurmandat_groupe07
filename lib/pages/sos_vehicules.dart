@@ -11,37 +11,13 @@ class SosVehiculePage extends StatefulWidget {
 }
 
 class _SosVehiculePageState extends State<SosVehiculePage> {
-  // Liste des alertes avec des données dynamiques à remplacer par des requetes API
-  /*
-  final List<Map<String, String>> alertes = [
-    {
-      'type': 'Chat coincé dans un arbre',
-      'heure': '12:00',
-      'adresse': 'Chemin du Village de Perly 16'
-    },
-    {
-      'type': 'Feu de poubelle',
-      'heure': '14:30',
-      'adresse': 'Pont de Lully Bernex'
-    },
-    {
-      'type': 'Accident de voiture',
-      'heure': '16:45',
-      'adresse': 'Rue des Lilas'
-    },
-    {
-      'type': 'Personne en détresse',
-      'heure': '18:10',
-      'adresse': '8 boulevard Haussmann'
-    },
-  ];
-  */
   List alertes = [];
+
   Future<void> getIntervention() async {
     try {
       String token = PersonneVaraible().token;
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -65,6 +41,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
     getIntervention();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,6 +59,16 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () async {
+              await getIntervention();
+              setState(() {});
+            },
+            tooltip: 'Rafraîchir',
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -135,55 +122,40 @@ class SosCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Type : $type'),
-              Text('Heure : $heure'),
-            ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsAlerteVehicule(
+              type: type,
+              heure: heure,
+              adresse: adresse,
+              idIntervention: id,
+            ),
           ),
-          const Spacer(),
-          ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(
-                  const Color.fromARGB(255, 251, 7, 7)),
-              minimumSize: WidgetStateProperty.all<Size>(const Size(100, 50)),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Type : $type'),
+                Text('Heure : $heure'),
+              ],
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsAlerteVehicule(
-                    type: type,
-                    heure: heure,
-                    adresse: adresse,
-                    idIntervention: id,
-                  ),
-                ),
-              );
-            },
-            child: const Text(
-              'Détails',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.white,
-              ),
-            ),
-          )
-        ],
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios,
+                color: Color.fromARGB(255, 251, 7, 7)),
+          ],
+        ),
       ),
     );
   }

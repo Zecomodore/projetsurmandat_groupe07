@@ -107,7 +107,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -124,7 +124,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       } else {
         throw Exception("Erreur lors de l'arrêt de l'alerte");
       }
@@ -146,7 +146,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -183,7 +183,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -234,6 +234,17 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 251, 7, 7),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () async {
+              chargerPompierPresent();
+              chargerVehiculePresent();
+              setState(() {});
+            },
+            tooltip: 'Rafraîchir',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

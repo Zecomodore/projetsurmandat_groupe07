@@ -24,6 +24,7 @@ class DetailsAlertePompier extends StatefulWidget {
 class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
   var disponibleColor = const Color.fromARGB(255, 3, 183, 60);
   var indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
+  var terminerColor = const Color.fromARGB(255, 76, 76, 76);
   bool? isAvailable;
 
   void _openGoogleMaps(String adresse) async {
@@ -53,7 +54,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -96,7 +97,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -119,9 +120,11 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
           if (data == true) {
             isAvailable = false;
             disponibleColor = const Color.fromARGB(255, 76, 76, 76);
+            terminerColor = const Color.fromARGB(255, 251, 7, 7);
           } else {
             isAvailable = true;
             disponibleColor = const Color.fromARGB(255, 3, 183, 60);
+            terminerColor = const Color.fromARGB(255, 76, 76, 76);
           }
         });
       } else {
@@ -145,7 +148,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -223,6 +226,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                   ),
                   onPressed: () {
                     setState(() {
+                      terminerColor = const Color.fromARGB(255, 251, 7, 7);
                       if (isAvailable == true || isAvailable == null) {
                         pompierDisponible();
                       }
@@ -287,8 +291,8 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
             SizedBox(height: 25),
             ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      const Color.fromARGB(255, 251, 7, 7)),
+                  backgroundColor:
+                      WidgetStateProperty.all<Color>(terminerColor),
                   minimumSize:
                       WidgetStateProperty.all<Size>(const Size(400, 50)),
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -298,10 +302,12 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
                   ),
                 ),
                 onPressed: () {
-                  finIntervention();
+                  if (isAvailable == false) {
+                    finIntervention();
+                  }
                 },
                 child: Text(
-                  'Intervention terminer',
+                  'Mon intervention terminer',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,

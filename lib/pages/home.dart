@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -58,6 +58,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Récupérer la taille de l'écran
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -125,13 +128,9 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             SizedBox(height: 40),
-            // Remplacer le ListView par un GridView
+            // Utiliser un ListView pour afficher les boutons en colonne
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2, // Deux éléments par ligne
-                padding: EdgeInsets.all(8),
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
+              child: ListView(
                 children: [
                   GestureDetector(
                     onTap: () {
@@ -145,40 +144,19 @@ class _HomePageState extends State<HomePage> {
                       }
                     },
                     child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: borderColor),
                       ),
-                      child: Image.asset('assets/images/sos.png'),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      //Navigator.pushNamed(context, '/sosVehicules');
-                      //mettre navigation
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: borderColor),
+                      child: Image.asset(
+                        'assets/images/sos.png',
+                        width: screenWidth *
+                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
+                        height: screenWidth *
+                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
                       ),
-                      child: Image.asset('assets/images/document.png'),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      //Navigator.pushNamed(context, '/sosPompier');
-                      //mettre navigation
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Image.asset('assets/images/agenda.png'),
                     ),
                   ),
                   GestureDetector(
@@ -186,12 +164,19 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushNamed(context, '/espacePersonel');
                     },
                     child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: borderColor),
                       ),
-                      child: Image.asset('assets/images/personnel.png'),
+                      child: Image.asset(
+                        'assets/images/personnel.png',
+                        width: screenWidth *
+                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
+                        height: screenWidth *
+                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
+                      ),
                     ),
                   ),
                 ],

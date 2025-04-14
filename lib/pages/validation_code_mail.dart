@@ -63,7 +63,7 @@ class _ValidationCodeMailState extends State<ValidationCodeMail> {
     try {
       final response = await dio.post(
         //http://10.0.2.2:8000/api/auth pour l'émulateur android
-        'http://127.0.0.1:8000/api/envoie',
+        'http://10.0.2.2:8000/api/envoie',
         queryParameters: {
           'email': email,
         },

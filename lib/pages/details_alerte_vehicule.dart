@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
+import 'vehicule_temps.dart'; // Import du singleton
 
 class DetailsAlerteVehicule extends StatefulWidget {
   final String type;
@@ -23,6 +24,7 @@ class DetailsAlerteVehicule extends StatefulWidget {
 }
 
 class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
+  Color interventionTerminer = const Color.fromARGB(255, 76, 76, 76);
   Color disponibleColor = const Color.fromARGB(255, 3, 183, 60);
   Color indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
   bool? chronometreLancer = false;
@@ -36,12 +38,18 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _seconds++;
+        VehiculeTemps().tempsEnSecondes =
+            _seconds; // Mettre à jour dans le singleton
       });
     });
+    VehiculeTemps().etatChronometre =
+        ChronometreEtat.lancer; // Mettre à jour l'état
   }
 
   void _stopTimer() {
     _timer?.cancel();
+    VehiculeTemps().etatChronometre =
+        ChronometreEtat.arreter; // Mettre à jour l'état
   }
 
   String _formatTime(int seconds) {
@@ -68,7 +76,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -87,9 +95,12 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
 
       if (response.statusCode == 200) {
         setState(() {
-          setState(() => disponibleColor = Colors.grey);
+          disponibleColor = Colors.grey;
           chronometreLancer = true;
-          _startTimer();
+          VehiculeTemps().etatChronometre = ChronometreEtat.lancer;
+          VehiculeTemps().tempsEnSecondes = 0; // Réinitialiser le temps
+          _seconds = 0;
+          _startTimer(); // Démarrer le chronomètre
         });
       } else {
         throw Exception("Erreur lors du chargement");
@@ -112,7 +123,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -131,9 +142,11 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
 
       if (response.statusCode == 200) {
         setState(() {
-          setState(() => indisponibleColor = Colors.grey);
-          _stopTimer();
+          interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
+          indisponibleColor = Colors.grey;
           chronometreArreter = true;
+          VehiculeTemps().etatChronometre = ChronometreEtat.arreter;
+          _stopTimer(); // Arrêter le chronomètre
         });
       } else {
         throw Exception("Erreur lors du chargement");
@@ -156,7 +169,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -198,7 +211,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -222,6 +235,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
             indisponibleColor = Colors.grey;
             chronometreLancer = true;
             chronometreArreter = true;
+            interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
           });
         } else {
           setState(() {
@@ -247,12 +261,25 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
   @override
   void initState() {
     super.initState();
+    final etat = VehiculeTemps().etatChronometre;
+    final secondes = VehiculeTemps().tempsEnSecondes;
+
+    setState(() {
+      chronometreLancer =
+          (etat == ChronometreEtat.lancer || etat == ChronometreEtat.arreter);
+      chronometreArreter = (etat == ChronometreEtat.arreter);
+      _seconds = secondes;
+    });
+
+    if (chronometreLancer == true && chronometreArreter == false) {
+      _startTimer();
+    }
+
     vahiculeEtat();
   }
 
   @override
   Widget build(BuildContext context) {
-    //double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -266,9 +293,9 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 251, 7, 7),
         iconTheme: const IconThemeData(color: Colors.white),
-        automaticallyImplyLeading: false, // Empêche le bouton retour par défaut
+        automaticallyImplyLeading: false,
         leading: (chronometreLancer == true && chronometreArreter == false)
-            ? null // Masque le bouton retour tant que "Arrivée" n'est pas appuyé
+            ? null
             : IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
@@ -354,15 +381,18 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
               widthFactor: 0.9,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 251, 7, 7),
+                  backgroundColor: interventionTerminer,
                   padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
                 onPressed: () {
-                  vahiculeFinIntervention();
+                  if (chronometreLancer == true && chronometreArreter == true) {
+                    vahiculeFinIntervention();
+                    VehiculeTemps().tempsEnSecondes = 0;
+                  }
                 },
-                child: const Text('Alerte terminée',
+                child: const Text('intervention terminée',
                     style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ),

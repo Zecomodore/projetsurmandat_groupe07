@@ -67,7 +67,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -86,7 +86,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       } else {
         throw Exception("Erreur lors de la déconnexion");
       }
