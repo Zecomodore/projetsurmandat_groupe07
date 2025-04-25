@@ -15,130 +15,133 @@ class ValidationCodeMail extends StatefulWidget {
 }
 
 class _ValidationCodeMailState extends State<ValidationCodeMail> {
-  Dio dio = Dio(); // Instance de Dio pour les requêtes HTTP
-  String code = ''; // Variable pour stocker le code de validation
+  Dio dio = Dio();
+  String code = '';
 
-  Future<void> verificationCode({
-    String? codeRecus,
-  }) async {
-    // Code pour la connexion
+  bool isVerifying = false;
+  bool isResending = false;
+  String? verifyMessage;
+  String? resendMessage;
+
+  Color redColor = const Color.fromARGB(255, 251, 7, 7);
+
+  Future<void> verificationCode({String? codeRecus}) async {
+    setState(() {
+      isVerifying = true;
+      verifyMessage = "Vérification en cours...";
+    });
+
     try {
       final response = await dio.post(
-        //http://10.0.2.2:8000/api/auth pour l'émulateur android
         'http://127.0.0.1:8000/api/validation',
-        data: {
-          'code': codeRecus,
-        },
+        data: {'code': codeRecus},
       );
 
       if (response.statusCode == 200) {
-        var data = response
-            .data['original']; // Récupérer les données depuis "original"
+        var data = response.data['original'];
 
-        setState(() {
-          PersonneVaraible().token =
-              data['token']; // Correctement extrait depuis "original"
-          PersonneVaraible().nameType = data['name'];
-          PersonneVaraible().userId = data['userId'];
-        });
-        //Navigator.pushNamed(context, '/changerMotDePasse');
+        PersonneVaraible().token = data['token'];
+        PersonneVaraible().nameType = data['name'];
+        PersonneVaraible().userId = data['userId'];
+
+        Navigator.pushNamed(context, '/changerMotDePasse');
       } else {
-        throw Exception('Code incorrect ${response.statusCode}');
+        throw Exception('Code incorrect');
       }
     } catch (e) {
-      print(e);
+      setState(() {
+        verifyMessage = "Code incorrect";
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Code incorrect '),
-          backgroundColor: Colors.red,
-        ),
+            content: Text('Code incorrect'), backgroundColor: Colors.red),
       );
+    } finally {
+      setState(() {
+        isVerifying = false;
+      });
     }
   }
 
-  Future<void> demandeCode({
-    String? email,
-  }) async {
-    // Code pour la connexion
+  Future<void> demandeCode({String? email}) async {
+    setState(() {
+      isResending = true;
+      resendMessage = "Envoi du code...";
+    });
+
     try {
       final response = await dio.post(
-        //http://10.0.2.2:8000/api/auth pour l'émulateur android
-        'http://10.0.2.2:8000/api/envoie',
-        queryParameters: {
-          'email': email,
-        },
+        'http://127.0.0.1:8000/api/envoie',
+        queryParameters: {'email': email},
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Demande effectuer'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        setState(() {
+          resendMessage = "Code renvoyé avec succès !";
+        });
       } else {
-        throw Exception('Mail incorrect');
+        throw Exception('Échec de l’envoi');
       }
     } catch (e) {
-      print(e);
+      setState(() {
+        resendMessage = "Erreur lors de l’envoi du code.";
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Mail incorrect'),
-          backgroundColor: Colors.red,
-        ),
+            content: Text('Erreur envoi code'), backgroundColor: Colors.red),
       );
+    } finally {
+      setState(() {
+        isResending = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = const Color.fromARGB(255, 251, 7, 7);
+    final borderColor = redColor;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(''),
-        backgroundColor: borderColor, // AppBar rouge
-        iconTheme: const IconThemeData(
-          color: Colors
-              .white, // Définit la couleur des icônes de l'AppBar en blanc
+        backgroundColor: borderColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/login', (route) => false);
+          },
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Centrer les éléments
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Entrer reçu le code par mail',
+                'Entrer le code reçu par mail',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: 350, // Largeur fixe pour le champ de texte
+                width: 350,
                 child: TextField(
                   cursorColor: Colors.black,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
-                  decoration: InputDecoration(
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  decoration: const InputDecoration(
                     labelText: "Code de validation",
-                    labelStyle: const TextStyle(color: Colors.black),
-                    border: const OutlineInputBorder(
+                    labelStyle: TextStyle(color: Colors.black),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    focusedBorder: const OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 251, 7, 7), // Rouge au focus
-                        width: 2.0,
-                      ),
+                          color: Color.fromARGB(255, 251, 7, 7), width: 2.0),
                     ),
                   ),
                   onChanged: (value) => setState(() => code = value),
@@ -146,81 +149,77 @@ class _ValidationCodeMailState extends State<ValidationCodeMail> {
               ),
               const SizedBox(height: 30),
               SizedBox(
-                width: 350, // Largeur fixe pour le bouton
+                width: 350,
                 child: ElevatedButton(
-                  onPressed: () {
-                    verificationCode(
-                        codeRecus: code); // Appel de la méthode de vérification
-                    if (PersonneVaraible().token.isNotEmpty) {
-                      print(
-                          'Connexion réussie : ${PersonneVaraible().token} ${PersonneVaraible().nameType} ${PersonneVaraible().userId}');
-                      Navigator.pushNamed(context, '/changerMotDePasse');
-                    }
-                    // mettre la méthode de vérification du code de validation
-                  },
+                  onPressed: isVerifying
+                      ? null
+                      : () => verificationCode(codeRecus: code),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        borderColor, // Couleur identique au contour
-                    minimumSize: Size(200, 50),
+                    backgroundColor: isVerifying ? Colors.grey : redColor,
+                    minimumSize: const Size(200, 50),
                     elevation: 18,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text(
-                    'Envoyer',
+                  child: isVerifying
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Envoyer',
+                          style: TextStyle(fontSize: 18, color: Colors.white)),
+                ),
+              ),
+              if (verifyMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    verifyMessage!,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white, // Texte blanc
+                      color: verifyMessage == "Vérification en cours..."
+                          ? Colors.black
+                          : Colors.red,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Vous n'avez pas reçu le code ?",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const SizedBox(height: 40),
+              const Text("Vous n'avez pas reçu le code ?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              const Text(
-                'Vérifier vos spams ou cliquez sur "Renvoyer"',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const Text('Vérifiez vos spams ou cliquez sur "Renvoyer"',
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
               const SizedBox(height: 30),
               SizedBox(
-                width: 350, // Largeur fixe pour le bouton
+                width: 350,
                 child: ElevatedButton(
-                  onPressed: () {
-                    demandeCode(
-                        email: widget
-                            .mail); // Appel de la méthode de demande de code
-                  },
+                  onPressed: isResending
+                      ? null
+                      : () => demandeCode(email: widget.mail),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        borderColor, // Couleur identique au contour
-                    minimumSize: Size(200, 50),
+                    backgroundColor: isResending ? Colors.grey : redColor,
+                    minimumSize: const Size(200, 50),
                     elevation: 18,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text(
-                    'Renvoyer un code',
+                  child: isResending
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Renvoyer un code',
+                          style: TextStyle(fontSize: 18, color: Colors.white)),
+                ),
+              ),
+              if (resendMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    resendMessage!,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white, // Texte blanc
+                      color: resendMessage!.contains("succès")
+                          ? Colors.green
+                          : Colors.red,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

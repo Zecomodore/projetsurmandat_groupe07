@@ -6,14 +6,14 @@ import 'personne_varaible.dart';
 class DetailsAlerte extends StatefulWidget {
   final String type;
   final String heure;
-  final String adresse;
+  //final String adresse;
   final int interventionId;
 
   const DetailsAlerte({
     super.key,
     required this.type,
     required this.heure,
-    required this.adresse,
+    //required this.adresse,
     required this.interventionId,
   });
 
@@ -41,6 +41,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
   ];
   */
 
+  /*
   void _openGoogleMaps(String adresse) async {
     Uri googleUrl;
 
@@ -57,6 +58,17 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
     } else {
       throw "Adresse non valide";
+    }
+  }
+  */
+
+  void _openGoogleMaps() async {
+    final Uri googleUrl = Uri.parse("https://www.google.com/maps");
+
+    if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw "Impossible d’ouvrir Google Maps";
     }
   }
 
@@ -107,7 +119,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -146,7 +158,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -183,7 +195,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -253,7 +265,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Type : ${widget.type}',
+                'Info : ${widget.type}',
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
@@ -262,15 +274,17 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
                 'Heure : ${widget.heure}',
                 style: const TextStyle(fontSize: 18),
               ),
+              /*
               const SizedBox(height: 10),
               Text(
                 'Adresse : ${widget.adresse}',
                 style: const TextStyle(fontSize: 18),
               ),
+              */
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  _openGoogleMaps(widget.adresse);
+                  _openGoogleMaps();
                 },
                 child: Text("Voir sur Google Maps"),
               ),

@@ -6,14 +6,14 @@ import 'package:dio/dio.dart';
 class DetailsAlertePompier extends StatefulWidget {
   final String type;
   final String heure;
-  final String adresse;
+  //final String adresse;
   final int idIntervention;
 
   const DetailsAlertePompier({
     super.key,
     required this.type,
     required this.heure,
-    required this.adresse,
+    //required this.adresse,
     required this.idIntervention,
   });
 
@@ -26,7 +26,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
   var indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
   var terminerColor = const Color.fromARGB(255, 76, 76, 76);
   bool? isAvailable;
-
+  /*
   void _openGoogleMaps(String adresse) async {
     Uri googleUrl;
 
@@ -45,6 +45,17 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       throw "Adresse non valide";
     }
   }
+  */
+
+  void _openGoogleMaps() async {
+    final Uri googleUrl = Uri.parse("https://www.google.com/maps");
+
+    if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw "Impossible d’ouvrir Google Maps";
+    }
+  }
 
   void pompierDisponible() async {
     try {
@@ -54,7 +65,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -97,7 +108,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -148,7 +159,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -268,7 +279,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
             ),
             SizedBox(height: 20),
             Text(
-              'Type : ${widget.type}',
+              'Info : ${widget.type}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
@@ -276,15 +287,17 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
               'Heure : ${widget.heure}',
               style: const TextStyle(fontSize: 18),
             ),
+            /*
             const SizedBox(height: 10),
             Text(
               'Adresse : ${widget.adresse}',
               style: const TextStyle(fontSize: 18),
             ),
+            */
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _openGoogleMaps(widget.adresse);
+                _openGoogleMaps();
               },
               child: Text("Voir sur Google Maps"),
             ),

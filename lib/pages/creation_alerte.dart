@@ -55,8 +55,8 @@ class _CreationAlerteState extends State<CreationAlerte> {
   // Fonction appelée lors de l'envoi de l'alerte
   void envoyerAlerte() async {
     String titre = titreController.text;
-    String adresse = adresseController.text;
-    String info = infoController.text;
+    //String adresse = adresseController.text;
+    //String info = infoController.text;
 
     // Affichage des valeurs dans la console (peut être remplacé par une API)
 
@@ -67,7 +67,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -80,8 +80,8 @@ class _CreationAlerteState extends State<CreationAlerte> {
         "/interventions",
         queryParameters: {
           'int_description': titre,
-          'int_adresse': adresse,
-          'int_commentaire': info,
+          //'int_adresse': adresse,
+          //'int_commentaire': info,
         },
       );
 
@@ -134,10 +134,11 @@ class _CreationAlerteState extends State<CreationAlerte> {
               const SizedBox(height: 20),
 
               // Champs de texte avec contrôleurs
-              buildTextField('Titre de l\'alerte', 5, titreController),
+              buildTextField('Titre de l\'alerte', 10, titreController),
+              /*
               buildTextField('Adresse de l\'alerte', 3, adresseController),
-              buildTextField('Informations complémentaires (facultatif)', 8,
-                  infoController),
+              buildTextField(
+                  'Informations complémentaires (facultatif)', 8, infoController),*/
 
               ElevatedButton(
                 style: ButtonStyle(

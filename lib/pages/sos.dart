@@ -17,7 +17,7 @@ class _SosPageState extends State<SosPage> {
     try {
       String token = PersonneVaraible().token;
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -120,7 +120,7 @@ class _SosPageState extends State<SosPage> {
                     child: SosCard(
                       type: alertes[index]['int_description']!,
                       heure: alertes[index]['int_heure']!,
-                      adresse: alertes[index]['int_adresse']!,
+                      //adresse: alertes[index]['int_adresse']!,
                       id: alertes[index]['int_no']!,
                       onRefresh: () async {
                         await getIntervention();
@@ -141,7 +141,7 @@ class _SosPageState extends State<SosPage> {
 class SosCard extends StatelessWidget {
   final String type;
   final String heure;
-  final String adresse;
+  //final String adresse;
   final int id;
   final Function onRefresh;
 
@@ -149,7 +149,7 @@ class SosCard extends StatelessWidget {
     super.key,
     required this.type,
     required this.heure,
-    required this.adresse,
+    //required this.adresse,
     required this.id,
     required this.onRefresh,
   });
@@ -164,7 +164,7 @@ class SosCard extends StatelessWidget {
             builder: (context) => DetailsAlerte(
               type: type,
               heure: heure,
-              adresse: adresse,
+              //adresse: adresse,
               interventionId: id,
             ),
           ),
@@ -182,15 +182,19 @@ class SosCard extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Type : $type'),
-                Text('Heure : $heure'),
-                Text('Adresse : $adresse'),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Info : $type',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('Heure : $heure'),
+                  // Text('Adresse : $adresse'),
+                ],
+              ),
             ),
-            const Spacer(),
             const Icon(Icons.arrow_forward_ios,
                 color: Color.fromARGB(255, 251, 7, 7)),
           ],
