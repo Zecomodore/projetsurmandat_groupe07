@@ -245,3 +245,4 @@ class SosCard extends StatelessWidget {
     );
   }
 }
+//           ],
