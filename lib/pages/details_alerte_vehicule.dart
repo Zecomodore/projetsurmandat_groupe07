@@ -8,14 +8,14 @@ import 'vehicule_temps.dart'; // Import du singleton
 class DetailsAlerteVehicule extends StatefulWidget {
   final String type;
   final String heure;
-  final String adresse;
+  //final String adresse;
   final int idIntervention;
 
   const DetailsAlerteVehicule({
     super.key,
     required this.type,
     required this.heure,
-    required this.adresse,
+    //required this.adresse,
     required this.idIntervention,
   });
 
@@ -57,14 +57,24 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     int secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
-
+  /*
   void _openGoogleMaps(String adresse) async {
-    Uri googleUrl = Uri.parse(
-        "https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(adresse)}");
+    Uri googleUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(adresse)}");
     if (await canLaunchUrl(googleUrl)) {
       await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
     } else {
       throw "Impossible d'ouvrir Google Maps";
+    }
+  }
+  */
+
+  void _openGoogleMaps() async {
+    final Uri googleUrl = Uri.parse("https://www.google.com/maps");
+
+    if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    } else {
+      throw "Impossible d’ouvrir Google Maps";
     }
   }
 
@@ -76,7 +86,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -123,7 +133,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -169,7 +179,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -211,7 +221,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://10.0.2.2:8000/api",
+        baseUrl: "http://127.0.0.1:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -282,123 +292,132 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Détails de l\'Alerte',
-          style: TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 251, 7, 7),
-        iconTheme: const IconThemeData(color: Colors.white),
-        automaticallyImplyLeading: false,
-        leading: (chronometreLancer == true && chronometreArreter == false)
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              _formatTime(_seconds),
-              style: const TextStyle(
-                  fontSize: 50,
+    return PopScope(
+        canPop: !(chronometreLancer == true && chronometreArreter == false),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: const Text(
+              'Détails de l\'Alerte',
+              style: TextStyle(
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                  color: Colors.white),
             ),
-            SizedBox(height: screenHeight * 0.02),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: disponibleColor,
-                      padding:
-                          EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
+            centerTitle: true,
+            backgroundColor: const Color.fromARGB(255, 251, 7, 7),
+            iconTheme: const IconThemeData(color: Colors.white),
+            automaticallyImplyLeading: false,
+            leading: (chronometreLancer == true && chronometreArreter == false)
+                ? null // On n’affiche pas le bouton retour
+                : IconButton(
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      if (chronometreLancer == false) {
-                        vahiculeDisponible();
-                      }
+                      Navigator.pop(context);
                     },
-                    child: const Text('Départ',
-                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  _formatTime(_seconds),
+                  style: const TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                ),
+                SizedBox(height: screenHeight * 0.02),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: disponibleColor,
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.03),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          if (chronometreLancer == false) {
+                            vahiculeDisponible();
+                          }
+                        },
+                        child: const Text('Départ',
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: indisponibleColor,
+                          padding: EdgeInsets.symmetric(
+                              vertical: screenHeight * 0.03),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          if (chronometreLancer == true &&
+                              chronometreArreter == false) {
+                            vahiculeArrivee();
+                          }
+                        },
+                        child: const Text('Arrivée',
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: screenHeight * 0.03),
+                Text('Info : ${widget.type}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text('Heure : ${widget.heure}',
+                    style: const TextStyle(fontSize: 18)),
+                /*
+            const SizedBox(height: 10),
+            Text('Adresse : ${widget.adresse}', style: const TextStyle(fontSize: 18)),
+            */
+                SizedBox(height: screenHeight * 0.03),
+                FractionallySizedBox(
+                  widthFactor: 0.9,
+                  child: ElevatedButton(
+                    onPressed: () => _openGoogleMaps(),
+                    child: const Text("Voir sur Google Maps"),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                SizedBox(height: screenHeight * 0.03),
+                FractionallySizedBox(
+                  widthFactor: 0.9,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: indisponibleColor,
+                      backgroundColor: interventionTerminer,
                       padding:
-                          EdgeInsets.symmetric(vertical: screenHeight * 0.03),
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
                       if (chronometreLancer == true &&
-                          chronometreArreter == false) {
-                        vahiculeArrivee();
+                          chronometreArreter == true) {
+                        vahiculeFinIntervention();
+                        VehiculeTemps().tempsEnSecondes = 0;
                       }
                     },
-                    child: const Text('Arrivée',
+                    child: const Text('intervention terminée',
                         style: TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: screenHeight * 0.03),
-            Text('Type : ${widget.type}',
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Text('Heure : ${widget.heure}',
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Adresse : ${widget.adresse}',
-                style: const TextStyle(fontSize: 18)),
-            SizedBox(height: screenHeight * 0.03),
-            FractionallySizedBox(
-              widthFactor: 0.9,
-              child: ElevatedButton(
-                onPressed: () => _openGoogleMaps(widget.adresse),
-                child: const Text("Voir sur Google Maps"),
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.03),
-            FractionallySizedBox(
-              widthFactor: 0.9,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: interventionTerminer,
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () {
-                  if (chronometreLancer == true && chronometreArreter == true) {
-                    vahiculeFinIntervention();
-                    VehiculeTemps().tempsEnSecondes = 0;
-                  }
-                },
-                child: const Text('intervention terminée',
-                    style: TextStyle(fontSize: 18, color: Colors.white)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
