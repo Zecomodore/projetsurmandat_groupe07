@@ -234,7 +234,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       final response = await dio.post(
         "/send-notification", // Endpoint pour envoyer une notification
         data: {
-          'title': title, // Envoie le titre de l'alerte
+          'title': 'Nouvelle alerte', // Envoie le titre de l'alerte
           'message': 'Une demande de renfort a été effectuée.',
         },
       );
