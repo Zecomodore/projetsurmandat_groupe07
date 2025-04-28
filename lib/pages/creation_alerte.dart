@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
+import 'details_alerte.dart';
 
 class CreationAlerte extends StatefulWidget {
   const CreationAlerte({super.key});
@@ -10,7 +11,6 @@ class CreationAlerte extends StatefulWidget {
 }
 
 class _CreationAlerteState extends State<CreationAlerte> {
-  // Déclaration des contrôleurs pour stocker les entrées utilisateur
   final TextEditingController titreController = TextEditingController();
   final TextEditingController adresseController = TextEditingController();
   final TextEditingController infoController = TextEditingController();
@@ -52,24 +52,15 @@ class _CreationAlerteState extends State<CreationAlerte> {
     );
   }
 
-  // Fonction appelée lors de l'envoi de l'alerte
   void envoyerAlerte() async {
     String titre = titreController.text;
     String adresse = adresseController.text;
     String info = infoController.text;
 
-    // Affichage des valeurs dans la console (peut être remplacé par une API)
-
     try {
       String token = PersonneVaraible().token;
-      if (token.isEmpty) {
-        throw Exception("Aucun token trouvé !");
-      }
-
       Dio dio = Dio(BaseOptions(
         baseUrl: "http://10.0.2.2:8000/api",
-        connectTimeout: Duration(seconds: 20),
-        receiveTimeout: Duration(seconds: 20),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
@@ -86,16 +77,23 @@ class _CreationAlerteState extends State<CreationAlerte> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pop(context, true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsAlerte(
+              type: titre, // Titre de l'alerte
+              heure: DateTime.now().toString(),
+              adresse: adresse,
+              interventionId: 123, // Remplace par l'ID réel
+            ),
+          ),
+        );
       } else {
-        throw Exception("Erreur lors de la déconnexion");
+        throw Exception("Erreur lors de la création de l'alerte");
       }
     } catch (e) {
-      print("Erreur: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Envoie de l'intervention à échoué"),
-            backgroundColor: Colors.red),
+        SnackBar(content: Text("Erreur: $e"), backgroundColor: Colors.red),
       );
     }
   }
@@ -132,13 +130,10 @@ class _CreationAlerteState extends State<CreationAlerte> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Champs de texte avec contrôleurs
               buildTextField('Titre de l\'alerte', 5, titreController),
               buildTextField('Adresse de l\'alerte', 3, adresseController),
               buildTextField('Informations complémentaires (facultatif)', 8,
                   infoController),
-
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all<Color>(
@@ -154,7 +149,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
                 ),
                 onPressed: () {
                   envoyerAlerte();
-                }, // Appelle la fonction lors du clic
+                },
                 child: const Text(
                   'Envoyer l\'alerte',
                   style: TextStyle(

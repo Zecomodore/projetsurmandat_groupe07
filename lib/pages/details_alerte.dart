@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sapeur_pompier/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class DetailsAlerte extends StatefulWidget {
   final String type;
@@ -24,22 +27,94 @@ class DetailsAlerte extends StatefulWidget {
 class _DetailsAlerteState extends State<DetailsAlerte> {
   List personnes = [];
   List vehicules = [];
-  /*
-  final List<Map<String, String>> personnes = [
-    {'prenom': 'Alice', 'nom': 'Dupont'},
-    {'prenom': 'Bob', 'nom': 'Martin'},
-    {'prenom': 'Claire', 'nom': 'Leclerc'},
-    {'prenom': 'David', 'nom': 'Lemoine'},
-    {'prenom': 'Eva', 'nom': 'Benoit'},
-    {'prenom': 'Franck', 'nom': 'Pires'},
-  ];
-  */
-/*
-  final List<String> vehicules = [
-    'Véhicule 1',
-    'Véhicule 2',
-  ];
-  */
+
+  @override
+  void initState() {
+    super.initState();
+    chargerPompierPresent();
+    chargerVehiculePresent();
+    _setupFCM(); // Initialise Firebase Cloud Messaging
+  }
+
+  // Gestion de Firebase Cloud Messaging
+  Future<void> _setupFCM() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+      _getTokenAndSave(); // Récupère et enregistre le token FCM
+      listenForNotifications(); // Écoute les notifications
+    } else {
+      print('User declined or has not accepted permission');
+    }
+  }
+
+  // Récupère le token FCM et l'envoie au serveur
+  Future<void> _getTokenAndSave() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      String authToken = PersonneVaraible().token;
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        headers: {
+          "Authorization": "Bearer $authToken",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/fcm-token", // Endpoint pour enregistrer le token côté serveur
+        data: {'fcm_token': token},
+      );
+
+      if (response.statusCode == 200) {
+        print("Token FCM enregistré avec succès sur le serveur");
+      } else {
+        print(
+            "Erreur lors de l'enregistrement du token FCM: ${response.statusCode}");
+      }
+    }
+  }
+
+  // Écoute les notifications reçues par Firebase
+  void listenForNotifications() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        displayNotification(notification.title,
+            notification.body); // Affiche une notification locale
+      }
+    });
+  }
+
+  // Affiche une notification locale
+  void displayNotification(String? title, String? body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'main_channel',
+      'Main Channel',
+      channelDescription: 'Main channel for notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
+  }
 
   void _openGoogleMaps(String adresse) async {
     Uri googleUrl;
@@ -60,43 +135,111 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
     }
   }
 
-  void _showRenfortPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shadowColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          title: const Text(
-            'Demande de renfort effectuée',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20),
-          ),
-          /*
-          content: const Text(
-            'La demande de renfort a bien été envoyée.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),*/
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Ferme le pop-up
-              },
-              child: const Text('OK'),
-            ),
-          ],
+  void _showRenfortPopup() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/demande-renfort", // Endpoint pour demander un renfort
+        queryParameters: {
+          'intervention_id': widget.interventionId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Appel de la fonction pour envoyer la notification push
+        _sendNotification(widget
+            .type); // Envoyer le type d'alerte comme titre de la notification
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shadowColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              title: const Text(
+                'Demande de renfort effectuée',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Ferme le pop-up
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
         );
-      },
-    );
-    /*
-    // Fermer automatiquement le pop-up après 2 secondes (2000 millisecondes)
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Ferme la boîte de dialogue après 2 secondes
-    });
-    */
+      } else {
+        throw Exception("Erreur lors de la demande de renfort");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("La demande de renfort à échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  // Envoie une notification push
+  Future<void> _sendNotification(String title) async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/send-notification", // Endpoint pour envoyer une notification
+        data: {
+          'title': title, // Envoie le titre de l'alerte
+          'message': 'Une demande de renfort a été effectuée.',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("Notification envoyée avec succès");
+      } else {
+        throw Exception("Erreur lors de l'envoi de la notification");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("L'envoi de la notification à échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
   }
 
   void finAlerte() async {
@@ -213,12 +356,6 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    chargerPompierPresent();
-    chargerVehiculePresent();
-  }
-
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
