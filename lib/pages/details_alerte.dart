@@ -290,7 +290,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Nombre de personne présente : ${personnes.length}',
+                'Personnel disponible : ${personnes.length}',
                 style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 10),
@@ -316,7 +316,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Nombre de véhicule présent : ${vehicules.length}',
+                'Véhicules disponible : ${vehicules.length}',
                 style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 10),
@@ -366,7 +366,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all<Color>(
-                        const Color.fromARGB(255, 251, 7, 7)),
+                        const Color.fromARGB(255, 3, 183, 60)),
                     minimumSize:
                         WidgetStateProperty.all<Size>(const Size(400, 50)),
                     shape: WidgetStateProperty.all<RoundedRectangleBorder>(

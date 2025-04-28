@@ -15,6 +15,7 @@ class _EspacePersonel extends State<EspacePersonel> {
   final borderColor = const Color.fromARGB(255, 251, 7, 7);
   bool? isAvailable; // Variable pour suivre la sélection des boutons
   String? role;
+  String urlImage = "assets/images/personnel.png";
 
   void regardeDispo(int chiffre) {
     if (chiffre == 1) {
@@ -292,16 +293,19 @@ class _EspacePersonel extends State<EspacePersonel> {
     // Code pour choisir le rôle
     if (PersonneVaraible().nameType == 'ChefIntervention') {
       setState(() {
+        urlImage = "assets/images/personnel.png";
         role = 'Chef d\'intervention';
         chargerInfoUtilisateur();
       });
     } else if (PersonneVaraible().nameType == 'SapeurPompier') {
       setState(() {
+        urlImage = "assets/images/personnel.png";
         role = 'Sapeur-pompier';
         chargerInfoUtilisateur();
       });
     } else if (PersonneVaraible().nameType == 'Vehicule') {
       setState(() {
+        urlImage = "assets/images/camion.png";
         role = 'Véhicule';
         chargerInfoVehicule();
       });
@@ -365,7 +369,7 @@ class _EspacePersonel extends State<EspacePersonel> {
                   ],
                 ),
                 Image.asset(
-                  'assets/images/personnel.png',
+                  urlImage,
                   width: 50,
                   height: 50,
                 ),

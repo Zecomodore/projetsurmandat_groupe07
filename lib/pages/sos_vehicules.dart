@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'details_alerte_vehicule.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
+import 'vehicule_temps.dart';
 
 class SosVehiculePage extends StatefulWidget {
   const SosVehiculePage({super.key});
@@ -71,6 +72,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
         } else {
           setState(() {
             occuper = false;
+            VehiculeTemps().tempsEnSecondes = 0;
           });
         }
       } else {
@@ -99,7 +101,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'SOS',
+          'Interventions en cours',
           style: TextStyle(
             fontSize: 24,
             color: Colors.white,
@@ -116,6 +118,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () async {
               await getIntervention();
+              vahiculeDispo();
               setState(() {});
             },
             tooltip: 'Rafraîchir',

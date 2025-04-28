@@ -12,6 +12,8 @@ class SosPompierPage extends StatefulWidget {
 
 class _SosPompierPageState extends State<SosPompierPage> {
   List alertes = [];
+  bool occuper = false;
+  int idIntervention = 0;
 
   Future<void> getIntervention() async {
     try {
@@ -35,10 +37,60 @@ class _SosPompierPageState extends State<SosPompierPage> {
     }
   }
 
+  void utiDispo() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://127.0.0.1:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get(
+        "/lstutilisateur/etat",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['original']['resultat']) {
+          setState(() {
+            occuper = true;
+            idIntervention = data['original']['lsu_int_no'];
+          });
+        } else {
+          setState(() {
+            occuper = false;
+          });
+        }
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Le chargement a échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     getIntervention();
+    utiDispo();
   }
 
   @override
@@ -47,7 +99,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'SOS',
+          'Interventions en cours',
           style: TextStyle(
             fontSize: 24,
             color: Colors.white,
@@ -64,6 +116,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () async {
               await getIntervention();
+              utiDispo();
               setState(() {});
             },
             tooltip: 'Rafraîchir',
@@ -94,6 +147,12 @@ class _SosPompierPageState extends State<SosPompierPage> {
                       heure: alertes[index]['int_heure']!,
                       //adresse: alertes[index]['int_adresse']!,
                       id: alertes[index]['int_no']!,
+                      occuper: occuper,
+                      idRecu: idIntervention,
+                      onRefresh: () async {
+                        await getIntervention();
+                        utiDispo();
+                      },
                     ),
                   );
                 },
@@ -106,11 +165,15 @@ class _SosPompierPageState extends State<SosPompierPage> {
   }
 }
 
+
 class SosCard extends StatelessWidget {
   final String type;
   final String heure;
   //final String adresse;
   final int id;
+  final bool occuper;
+  final int idRecu;
+  final Future<void> Function() onRefresh;
 
   const SosCard({
     super.key,
@@ -118,15 +181,18 @@ class SosCard extends StatelessWidget {
     required this.heure,
     //required this.adresse,
     required this.id,
+    required this.occuper,
+    required this.idRecu,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
+      onTap: () async {
+        if (occuper == true) {
+          if (idRecu == id) {
+            await  Navigator.push(context,MaterialPageRoute(
             builder: (context) => DetailsAlertePompier(
               type: type,
               heure: heure,
@@ -135,6 +201,28 @@ class SosCard extends StatelessWidget {
             ),
           ),
         );
+            await onRefresh(); // Appel ici
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Vous avez déjà une alerte en cours"),
+                backgroundColor: Colors.red,
+                duration: Duration(milliseconds: 500),
+              ),
+            );
+          }
+        } else {
+          await  Navigator.push(context,MaterialPageRoute(
+            builder: (context) => DetailsAlertePompier(
+              type: type,
+              heure: heure,
+              //adresse: adresse,
+              idIntervention: id,
+            ),
+          ),
+        );
+          await onRefresh(); // Appel ici
+        }
       },
       child: Container(
         decoration: BoxDecoration(

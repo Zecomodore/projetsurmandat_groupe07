@@ -13,6 +13,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final borderColor = const Color.fromARGB(255, 251, 7, 7);
+  String urlImage = "assets/images/personnel.png";
+
+  void mettreUrlImage() {
+    if (PersonneVaraible().nameType == "ChefIntervention") {
+      urlImage = "assets/images/personnel.png";
+    } else if (PersonneVaraible().nameType == "Vehicule") {
+      urlImage = "assets/images/camion.png";
+    } else if (PersonneVaraible().nameType == "SapeurPompier") {
+      urlImage = "assets/images/personnel.png";
+    }
+  }
 
   Future<void> logout() async {
     try {
@@ -57,6 +68,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    mettreUrlImage();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Récupérer la taille de l'écran
     double screenWidth = MediaQuery.of(context).size.width;
@@ -66,7 +83,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: borderColor,
         title: Text(
-          'Sapeur Pompier',
+          'Accueil',
           style: TextStyle(
             fontSize: 24,
             color: Colors.white,
@@ -151,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                         border: Border.all(color: borderColor),
                       ),
                       child: Image.asset(
-                        'assets/images/sos.png',
+                        'assets/images/interventions.png',
                         width: screenWidth *
                             0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
                         height: screenWidth *
@@ -170,8 +187,9 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: borderColor),
                       ),
+                      
                       child: Image.asset(
-                        'assets/images/personnel.png',
+                        urlImage,
                         width: screenWidth *
                             0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
                         height: screenWidth *

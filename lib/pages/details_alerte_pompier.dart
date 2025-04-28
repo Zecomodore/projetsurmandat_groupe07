@@ -92,11 +92,14 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
       }
     } catch (e) {
       print("Erreur: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le chargement a échoué"),
-            backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Cette intervention a déjà été terminée"),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -168,7 +171,7 @@ class _DetailsAlertePompierState extends State<DetailsAlertePompier> {
         },
       ));
 
-      final response = await dio.delete(
+      final response = await dio.put(
         "/interventions/supprimer/pompier",
         queryParameters: {
           'uti_use_id': PersonneVaraible().userId,

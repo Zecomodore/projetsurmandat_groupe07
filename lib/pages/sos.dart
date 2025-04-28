@@ -47,7 +47,7 @@ class _SosPageState extends State<SosPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'SOS',
+          'Interventions en cours',
           style: TextStyle(
             fontSize: 24,
             color: Colors.white,

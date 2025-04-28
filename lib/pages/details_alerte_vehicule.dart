@@ -8,14 +8,12 @@ import 'vehicule_temps.dart'; // Import du singleton
 class DetailsAlerteVehicule extends StatefulWidget {
   final String type;
   final String heure;
-  //final String adresse;
   final int idIntervention;
 
   const DetailsAlerteVehicule({
     super.key,
     required this.type,
     required this.heure,
-    //required this.adresse,
     required this.idIntervention,
   });
 
@@ -36,20 +34,21 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     _timer?.cancel();
     _seconds = 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _seconds++;
-        VehiculeTemps().tempsEnSecondes =
-            _seconds; // Mettre à jour dans le singleton
-      });
+      if (mounted) {
+        setState(() {
+          _seconds++;
+          VehiculeTemps().tempsEnSecondes = _seconds; // Mettre à jour dans le singleton
+        });
+      } else {
+        timer.cancel();
+      }
     });
-    VehiculeTemps().etatChronometre =
-        ChronometreEtat.lancer; // Mettre à jour l'état
+    VehiculeTemps().etatChronometre = ChronometreEtat.lancer; // Mettre à jour l'état
   }
 
   void _stopTimer() {
     _timer?.cancel();
-    VehiculeTemps().etatChronometre =
-        ChronometreEtat.arreter; // Mettre à jour l'état
+    VehiculeTemps().etatChronometre = ChronometreEtat.arreter; // Mettre à jour l'état
   }
 
   String _formatTime(int seconds) {
@@ -57,16 +56,6 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     int secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
-  /*
-  void _openGoogleMaps(String adresse) async {
-    Uri googleUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(adresse)}");
-    if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw "Impossible d'ouvrir Google Maps";
-    }
-  }
-  */
 
   void _openGoogleMaps() async {
     final Uri googleUrl = Uri.parse("https://www.google.com/maps");
@@ -104,24 +93,29 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          disponibleColor = Colors.grey;
-          chronometreLancer = true;
-          VehiculeTemps().etatChronometre = ChronometreEtat.lancer;
-          VehiculeTemps().tempsEnSecondes = 0; // Réinitialiser le temps
-          _seconds = 0;
-          _startTimer(); // Démarrer le chronomètre
-        });
+        if (mounted) {
+          setState(() {
+            disponibleColor = Colors.grey;
+            chronometreLancer = true;
+            VehiculeTemps().etatChronometre = ChronometreEtat.lancer;
+            VehiculeTemps().tempsEnSecondes = 0;
+            _seconds = 0;
+            _startTimer();
+          });
+        }
       } else {
         throw Exception("Erreur lors du chargement");
       }
     } catch (e) {
       print("Erreur: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le chargement a échoué"),
-            backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Cette intervention a déjà été terminée"),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -151,23 +145,34 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
-          indisponibleColor = Colors.grey;
-          chronometreArreter = true;
-          VehiculeTemps().etatChronometre = ChronometreEtat.arreter;
-          _stopTimer(); // Arrêter le chronomètre
-        });
+        if (mounted) {
+          setState(() {
+            interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
+            indisponibleColor = Colors.grey;
+            chronometreArreter = true;
+            VehiculeTemps().etatChronometre = ChronometreEtat.arreter;
+            _stopTimer();
+          });
+        }
       } else {
-        throw Exception("Erreur lors du chargement");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Erreur lors du chargement"),
+                backgroundColor: Colors.red),
+          );
+        }
       }
     } catch (e) {
       print("Erreur: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le chargement a échoué"),
-            backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Cette intervention a déjà été terminée"),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -197,19 +202,21 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
+        if (mounted) {
           Navigator.pop(context);
-        });
+        }
       } else {
         throw Exception("Erreur lors du chargement");
       }
     } catch (e) {
       print("Erreur: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le chargement a échoué"),
-            backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Le chargement a échoué"),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -239,20 +246,20 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       );
 
       if (response.statusCode == 200) {
-        if (response.data == true) {
+        if (mounted) {
           setState(() {
-            disponibleColor = Colors.grey;
-            indisponibleColor = Colors.grey;
-            chronometreLancer = true;
-            chronometreArreter = true;
-            interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
-          });
-        } else {
-          setState(() {
-            disponibleColor = const Color.fromARGB(255, 3, 183, 60);
-            indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
-            chronometreLancer = false;
-            chronometreArreter = false;
+            if (response.data == true) {
+              disponibleColor = Colors.grey;
+              indisponibleColor = Colors.grey;
+              chronometreLancer = true;
+              chronometreArreter = true;
+              interventionTerminer = const Color.fromARGB(255, 251, 7, 7);
+            } else {
+              disponibleColor = const Color.fromARGB(255, 3, 183, 60);
+              indisponibleColor = const Color.fromARGB(255, 251, 7, 7);
+              chronometreLancer = false;
+              chronometreArreter = false;
+            }
           });
         }
       } else {
@@ -260,11 +267,13 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
     } catch (e) {
       print("Erreur: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le chargement a échoué"),
-            backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Le chargement a échoué"),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -274,18 +283,23 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     final etat = VehiculeTemps().etatChronometre;
     final secondes = VehiculeTemps().tempsEnSecondes;
 
-    setState(() {
-      chronometreLancer =
-          (etat == ChronometreEtat.lancer || etat == ChronometreEtat.arreter);
-      chronometreArreter = (etat == ChronometreEtat.arreter);
-      _seconds = secondes;
-    });
-
+    chronometreLancer =
+        (etat == ChronometreEtat.lancer || etat == ChronometreEtat.arreter);
+    chronometreArreter = (etat == ChronometreEtat.arreter);
+    _seconds = secondes;
+  /*
     if (chronometreLancer == true && chronometreArreter == false) {
       _startTimer();
     }
+    */
 
     vahiculeEtat();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // On arrête le timer proprement
+    super.dispose();
   }
 
   @override
@@ -309,7 +323,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
             iconTheme: const IconThemeData(color: Colors.white),
             automaticallyImplyLeading: false,
             leading: (chronometreLancer == true && chronometreArreter == false)
-                ? null // On n’affiche pas le bouton retour
+                ? null
                 : IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
@@ -367,7 +381,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                             vahiculeArrivee();
                           }
                         },
-                        child: const Text('Arrivée',
+                        child: const Text('Arrivée sur site',
                             style:
                                 TextStyle(fontSize: 18, color: Colors.white)),
                       ),
@@ -381,10 +395,6 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                 const SizedBox(height: 10),
                 Text('Heure : ${widget.heure}',
                     style: const TextStyle(fontSize: 18)),
-                /*
-            const SizedBox(height: 10),
-            Text('Adresse : ${widget.adresse}', style: const TextStyle(fontSize: 18)),
-            */
                 SizedBox(height: screenHeight * 0.03),
                 FractionallySizedBox(
                   widthFactor: 0.9,
@@ -411,7 +421,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                         VehiculeTemps().tempsEnSecondes = 0;
                       }
                     },
-                    child: const Text('intervention terminée',
+                    child: const Text('Intervention terminée',
                         style: TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                 ),
