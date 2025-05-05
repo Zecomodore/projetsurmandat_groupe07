@@ -12,7 +12,6 @@ import 'pages/sos_vehicules.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pages/personne_varaible.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async {
