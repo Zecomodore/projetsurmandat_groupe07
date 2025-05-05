@@ -20,7 +20,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
     try {
       String token = PersonneVaraible().token;
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -46,7 +46,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {

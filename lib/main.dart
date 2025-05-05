@@ -9,9 +9,40 @@ import 'pages/sos.dart';
 import 'pages/creation_alerte.dart';
 import 'pages/sos_pompier.dart';
 import 'pages/sos_vehicules.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'pages/personne_varaible.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await registerFcmToken();
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // Affiche une notification locale ou un snackbar
+    print('Notification reçue: ${message.notification?.title}');
+  });
+
   runApp(const MyApp());
+}
+
+Future<void> registerFcmToken() async {
+  final fcm = FirebaseMessaging.instance;
+  String? token = await fcm.getToken();
+  if (token != null) {
+    // Envoie le token à Laravel
+    final dio = Dio();
+    final userToken = PersonneVaraible().token; // Ton token d'auth utilisateur
+    await dio.post(
+      'http://10.0.2.2:8000/api/store-fcm-token',
+      data: {'token': token},
+      options: Options(headers: {
+        "Authorization": "Bearer $userToken",
+        "Accept": "application/json",
+      }),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {

@@ -19,7 +19,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
     try {
       String token = PersonneVaraible().token;
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -45,7 +45,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -165,7 +165,6 @@ class _SosPompierPageState extends State<SosPompierPage> {
   }
 }
 
-
 class SosCard extends StatelessWidget {
   final String type;
   final String heure;
@@ -192,15 +191,17 @@ class SosCard extends StatelessWidget {
       onTap: () async {
         if (occuper == true) {
           if (idRecu == id) {
-            await  Navigator.push(context,MaterialPageRoute(
-            builder: (context) => DetailsAlertePompier(
-              type: type,
-              heure: heure,
-              //adresse: adresse,
-              idIntervention: id,
-            ),
-          ),
-        );
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailsAlertePompier(
+                  type: type,
+                  heure: heure,
+                  //adresse: adresse,
+                  idIntervention: id,
+                ),
+              ),
+            );
             await onRefresh(); // Appel ici
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -212,15 +213,17 @@ class SosCard extends StatelessWidget {
             );
           }
         } else {
-          await  Navigator.push(context,MaterialPageRoute(
-            builder: (context) => DetailsAlertePompier(
-              type: type,
-              heure: heure,
-              //adresse: adresse,
-              idIntervention: id,
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailsAlertePompier(
+                type: type,
+                heure: heure,
+                //adresse: adresse,
+                idIntervention: id,
+              ),
             ),
-          ),
-        );
+          );
           await onRefresh(); // Appel ici
         }
       },

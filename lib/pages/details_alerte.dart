@@ -72,7 +72,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
     }
   }
 
-  void _showRenfortPopup() {
+  void _showRenfortPopup() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -103,13 +103,23 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
         );
       },
     );
-    /*
+    // Envoi notification push :
+    String token = PersonneVaraible().token;
+    Dio dio = Dio(BaseOptions(
+      baseUrl: "http://10.0.2.2:8000/api",
+      headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      },
+    ));
+    await dio.post("/send-renfort");
+  }
+  /*
     // Fermer automatiquement le pop-up après 2 secondes (2000 millisecondes)
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pop(context); // Ferme la boîte de dialogue après 2 secondes
     });
     */
-  }
 
   void finAlerte() async {
     try {
@@ -119,7 +129,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -158,7 +168,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -195,7 +205,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {

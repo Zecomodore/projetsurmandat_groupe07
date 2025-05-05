@@ -23,7 +23,7 @@ class _MyLoginPage extends State<LoginPage> {
     try {
       final response = await dio.post(
         //http://10.0.2.2:8000/api/auth pour l'émulateur android
-        'http://127.0.0.1:8000/api/auth',
+        'http://10.0.2.2:8000/api/auth',
         queryParameters: {
           'email': email,
           'password': password,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "22845365620",
+    "project_id": "pompieralerte",
+    "storage_bucket": "pompieralerte.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22845365620:android:fb652f27dec353732aa021",
+        "android_client_info": {
+          "package_name": "com.example.sapeur_pompier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAid_GRCcY6lizjebxLEHJdqrpBvu7rIbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
