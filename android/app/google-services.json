@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36684990003",
+    "project_id": "notif-22346",
+    "storage_bucket": "notif-22346.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36684990003:android:07af31a52213dff618c546",
+        "android_client_info": {
+          "package_name": "com.example.sapeur_pompier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGE0FKlbQE2JUo8N1R9AOx94zhyYmXvfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

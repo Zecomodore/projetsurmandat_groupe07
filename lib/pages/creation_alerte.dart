@@ -134,7 +134,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
               const SizedBox(height: 20),
 
               // Champs de texte avec contrôleurs
-              buildTextField('Titre de l\'alerte', 10, titreController),
+              buildTextField('Info de l\'alerte', 10, titreController),
               /*
               buildTextField('Adresse de l\'alerte', 3, adresseController),
               buildTextField(
