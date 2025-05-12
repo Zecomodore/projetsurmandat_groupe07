@@ -20,10 +20,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.sapeur_pompier"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // L'ID d'application doit être identique à celui dans ton fichier google-services.json
+        applicationId = "com.example.sapeur_pompier"  // Assure-toi qu'il correspond à ton google-services.json
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -32,13 +30,21 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Si tu utilises une clé de signature en mode release, configure la ici
             signingConfig = signingConfigs.debug
         }
     }
 }
 
-flutter {
-    source = "../.."
+dependencies {
+    // Dépendances Firebase
+    implementation 'com.google.firebase:firebase-core:21.1.0' // ou plus récent
+    implementation 'com.google.firebase:firebase-messaging:23.1.1' // ou plus récent
+    implementation 'androidx.multidex:multidex:2.0.1' // Si tu as besoin de gérer la multidex
+
+    // Autres dépendances
+    // ...
 }
+
+// Appliquer le plugin Google Services pour activer Firebase
+apply plugin: 'com.google.gms.google-services'  // <-- Ajoute cette ligne à la fin

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329285630210",
+    "project_id": "pompier-404b4",
+    "storage_bucket": "pompier-404b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329285630210:android:91d72ca5537ea47706ea1b",
+        "android_client_info": {
+          "package_name": "com.example.sapeur_pompier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3btbokGdGF7CkSzqogle-UrqPspnwLzo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

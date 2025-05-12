@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
 
+import 'push_notification_service.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -33,7 +35,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -71,6 +73,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     mettreUrlImage();
+    super.initState();
+    PushNotificationService.initialize();
   }
 
   @override
@@ -187,7 +191,6 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: borderColor),
                       ),
-                      
                       child: Image.asset(
                         urlImage,
                         width: screenWidth *

@@ -119,7 +119,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -158,7 +158,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -195,7 +195,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: Duration(seconds: 20),
         receiveTimeout: Duration(seconds: 20),
         headers: {
@@ -219,6 +219,39 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text("Le chargement à échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void envoyerNotification() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: Duration(seconds: 20),
+        receiveTimeout: Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get("/send-firebase-notification");
+
+      if (response.statusCode == 200) {
+      } else {
+        throw Exception("Erreur lors de l'envoie");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Envoie des notifications échoué"),
             backgroundColor: Colors.red),
       );
     }
@@ -354,6 +387,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
                   ),
                   onPressed: () {
                     _showRenfortPopup();
+                    envoyerNotification();
                   },
                   child: Text(
                     'Demande de renfort',

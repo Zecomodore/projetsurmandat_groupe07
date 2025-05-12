@@ -37,18 +37,21 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       if (mounted) {
         setState(() {
           _seconds++;
-          VehiculeTemps().tempsEnSecondes = _seconds; // Mettre à jour dans le singleton
+          VehiculeTemps().tempsEnSecondes =
+              _seconds; // Mettre à jour dans le singleton
         });
       } else {
         timer.cancel();
       }
     });
-    VehiculeTemps().etatChronometre = ChronometreEtat.lancer; // Mettre à jour l'état
+    VehiculeTemps().etatChronometre =
+        ChronometreEtat.lancer; // Mettre à jour l'état
   }
 
   void _stopTimer() {
     _timer?.cancel();
-    VehiculeTemps().etatChronometre = ChronometreEtat.arreter; // Mettre à jour l'état
+    VehiculeTemps().etatChronometre =
+        ChronometreEtat.arreter; // Mettre à jour l'état
   }
 
   String _formatTime(int seconds) {
@@ -75,7 +78,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -127,7 +130,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -184,7 +187,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -228,7 +231,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
       }
 
       Dio dio = Dio(BaseOptions(
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: "http://10.0.2.2:8000/api",
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -287,7 +290,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
         (etat == ChronometreEtat.lancer || etat == ChronometreEtat.arreter);
     chronometreArreter = (etat == ChronometreEtat.arreter);
     _seconds = secondes;
-  /*
+    /*
     if (chronometreLancer == true && chronometreArreter == false) {
       _startTimer();
     }

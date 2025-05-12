@@ -10,7 +10,29 @@ import 'pages/creation_alerte.dart';
 import 'pages/sos_pompier.dart';
 import 'pages/sos_vehicules.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'pages/notification_service.dart';
+import 'pages/push_notification_service.dart';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print(
+      '🔵 Message reçu en arrière-plan ou app fermée : ${message.notification?.title}');
+  // Tu peux aussi afficher une notification locale ici si tu veux
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 🔁 Enregistrer le handler pour messages en background/terminated
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await Firebase.initializeApp();
+  await PushNotificationService.initialize(); // ← le `await` est recommandé
+  LocalNotificationService.initialize();
+
   runApp(const MyApp());
 }
 

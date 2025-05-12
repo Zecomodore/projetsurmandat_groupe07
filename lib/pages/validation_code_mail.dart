@@ -33,7 +33,7 @@ class _ValidationCodeMailState extends State<ValidationCodeMail> {
 
     try {
       final response = await dio.post(
-        'http://127.0.0.1:8000/api/validation',
+        'http://10.0.2.2:8000/api/validation',
         data: {'code': codeRecus},
       );
 
@@ -71,7 +71,7 @@ class _ValidationCodeMailState extends State<ValidationCodeMail> {
 
     try {
       final response = await dio.post(
-        'http://127.0.0.1:8000/api/envoie',
+        'http://10.0.2.2:8000/api/envoie',
         queryParameters: {'email': email},
       );
 
