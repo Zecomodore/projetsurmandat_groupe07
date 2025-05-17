@@ -29,7 +29,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
         },
       ));
 
-      final response = await dio.get("/interventions");
+      final response = await dio.get("/interventions/dispo");
       setState(() {
         alertes = response.data;
       });

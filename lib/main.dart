@@ -19,18 +19,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print(
-      '🔵 Message reçu en arrière-plan ou app fermée : ${message.notification?.title}');
+      'Message reçu en arrière-plan ou app fermée : ${message.notification?.title}');
   // Tu peux aussi afficher une notification locale ici si tu veux
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔁 Enregistrer le handler pour messages en background/terminated
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await Firebase.initializeApp();
-  await PushNotificationService.initialize(); // ← le `await` est recommandé
+  await PushNotificationService.basicSetup(); // ← sans besoin de login
   LocalNotificationService.initialize();
 
   runApp(const MyApp());

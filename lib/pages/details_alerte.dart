@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+//import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
+
+import 'dart:async';
 
 class DetailsAlerte extends StatefulWidget {
   final String type;
@@ -24,6 +26,10 @@ class DetailsAlerte extends StatefulWidget {
 class _DetailsAlerteState extends State<DetailsAlerte> {
   List personnes = [];
   List vehicules = [];
+
+  bool isDisponible = true;
+  Timer? _autoRefreshTimer;
+
   /*
   final List<Map<String, String>> personnes = [
     {'prenom': 'Alice', 'nom': 'Dupont'},
@@ -61,7 +67,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
     }
   }
   */
-
+  /*
   void _openGoogleMaps() async {
     final Uri googleUrl = Uri.parse("https://www.google.com/maps");
 
@@ -71,6 +77,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
       throw "Impossible d’ouvrir Google Maps";
     }
   }
+  */
 
   void _showRenfortPopup() {
     showDialog(
@@ -241,7 +248,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
         },
       ));
 
-      final response = await dio.get("/send-firebase-notification");
+      final response = await dio.get("/renfort-notification");
 
       if (response.statusCode == 200) {
       } else {
@@ -257,11 +264,160 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
     }
   }
 
+  void pompierDisponible() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.post(
+        "/interventions/ajout/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.interventionId
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isDisponible = false;
+          chargerPompierPresent();
+          chargerVehiculePresent();
+        });
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Cette intervention a déjà été terminée"),
+              backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  void pompierEtat() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get(
+        "/interventions/etat/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.interventionId
+        },
+      );
+
+      if (response.statusCode == 200) {
+        bool data = response.data;
+        setState(() {
+          if (data == true) {
+            isDisponible = false;
+          } else {
+            isDisponible = true;
+          }
+        });
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Le chargement a échoué"),
+            backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void finIntervention() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.put(
+        "/interventions/supprimer/pompier",
+        queryParameters: {
+          'uti_use_id': PersonneVaraible().userId,
+          'lsu_int_no': widget.interventionId
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isDisponible = true;
+          chargerPompierPresent();
+          chargerVehiculePresent();
+        });
+      } else {
+        throw Exception("Erreur lors du la connexion");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("L'action à échoué"), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     chargerPompierPresent();
     chargerVehiculePresent();
+    pompierEtat();
+
+    _autoRefreshTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      chargerPompierPresent();
+      chargerVehiculePresent();
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel(); // 👈 Arrêt du timer quand on quitte l'écran
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -316,11 +472,39 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
               */
               const SizedBox(height: 10),
               ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all<Color>(isDisponible
+                          ? const Color.fromARGB(255, 3, 183, 60) // Vert
+                          : const Color.fromARGB(255, 251, 7, 7) // Rouge
+                      ),
+                  minimumSize:
+                      WidgetStateProperty.all<Size>(const Size(400, 50)),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  if (isDisponible) {
+                    pompierDisponible();
+                  } else {
+                    finIntervention();
+                  }
+                },
+                child: Text(
+                  isDisponible ? 'Disponible' : 'Indisponible',
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+              /*
+              ElevatedButton(
                 onPressed: () {
                   _openGoogleMaps();
                 },
                 child: Text("Voir sur Google Maps"),
               ),
+              */
               const SizedBox(height: 20),
               Text(
                 'Personnel disponible : ${personnes.length}',

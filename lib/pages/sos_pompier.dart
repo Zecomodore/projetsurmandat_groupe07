@@ -28,7 +28,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
         },
       ));
 
-      final response = await dio.get("/interventions");
+      final response = await dio.get("/interventions/dispo");
       setState(() {
         alertes = response.data;
       });

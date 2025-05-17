@@ -26,7 +26,7 @@ class _SosPageState extends State<SosPage> {
         },
       ));
 
-      final response = await dio.get("/interventions");
+      final response = await dio.get("/interventions/dispo");
       setState(() {
         alertes = response.data;
       });

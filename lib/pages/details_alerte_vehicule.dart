@@ -122,6 +122,40 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     }
   }
 
+  void notifDepartVehicule() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get(
+        "/depart-notification",
+        queryParameters: {
+          'veh_no': PersonneVaraible().userId,
+          'inter_nom': widget.type,
+        },
+      );
+
+      if (response.statusCode == 200) {
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
+    }
+  }
+
   void vahiculeArrivee() async {
     try {
       String token = PersonneVaraible().token;
@@ -176,6 +210,39 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
               backgroundColor: Colors.red),
         );
       }
+    }
+  }
+
+  void notifArriveVehicule() async {
+    try {
+      String token = PersonneVaraible().token;
+      if (token.isEmpty) {
+        throw Exception("Aucun token trouvé !");
+      }
+
+      Dio dio = Dio(BaseOptions(
+        baseUrl: "http://10.0.2.2:8000/api",
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ));
+
+      final response = await dio.get(
+        "/arrive-notification",
+        queryParameters: {
+          'veh_no': PersonneVaraible().userId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+      } else {
+        throw Exception("Erreur lors du chargement");
+      }
+    } catch (e) {
+      print("Erreur: $e");
     }
   }
 
@@ -361,6 +428,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                         onPressed: () {
                           if (chronometreLancer == false) {
                             vahiculeDisponible();
+                            notifDepartVehicule();
                           }
                         },
                         child: const Text('Départ',
@@ -382,6 +450,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                           if (chronometreLancer == true &&
                               chronometreArreter == false) {
                             vahiculeArrivee();
+                            notifArriveVehicule();
                           }
                         },
                         child: const Text('Arrivée sur site',

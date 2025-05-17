@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     mettreUrlImage();
     super.initState();
-    PushNotificationService.initialize();
+    PushNotificationService.registerFcmToken();
   }
 
   @override
