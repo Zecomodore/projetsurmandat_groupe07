@@ -6,7 +6,6 @@ import 'personne_varaible.dart';
 class PushNotificationService {
   static bool _initialized = false;
 
-  // À appeler dans main() → fait le minimum
   static Future<void> basicSetup() async {
     if (_initialized) return;
     _initialized = true;
@@ -18,7 +17,7 @@ class PushNotificationService {
 
     // Abonnement au topic
     await messaging.subscribeToTopic('interventions');
-    print('✅ Abonné au topic "interventions"');
+    print('Abonné au topic "interventions"');
 
     // Notifications foreground
     FirebaseMessaging.onMessage.listen((message) {
@@ -29,14 +28,13 @@ class PushNotificationService {
   // À appeler après login → on a un token utilisateur
   static Future<void> registerFcmToken() async {
     String? fcmToken = await FirebaseMessaging.instance.getToken();
-    print('🎯 FCM Token après login: $fcmToken');
+    print('FCM Token après login: $fcmToken');
 
     if (fcmToken != null) {
       await sendTokenToBackend(fcmToken);
     }
   }
 
-  // 🔁 Fonction pour envoyer le token au backend Laravel
   static Future<void> sendTokenToBackend(String tokenFCM) async {
     try {
       String token = PersonneVaraible().token;

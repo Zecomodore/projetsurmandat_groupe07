@@ -13,7 +13,7 @@ class _EspacePersonel extends State<EspacePersonel> {
   String? info;
   List utilisrateur = [];
   final borderColor = const Color.fromARGB(255, 251, 7, 7);
-  bool? isAvailable; // Variable pour suivre la sélection des boutons
+  bool? isAvailable;
   String? role;
   String urlImage = "assets/images/personnel.png";
 
@@ -50,10 +50,9 @@ class _EspacePersonel extends State<EspacePersonel> {
           await dio.get("/utilisateur/info/${PersonneVaraible().userId}");
 
       if (response.statusCode == 200) {
-        List data = response.data; // Récupération des données de l'API
+        List data = response.data;
 
         if (data.isNotEmpty) {
-          // Vérifier que la liste n'est pas vide
           setState(() {
             utilisrateur = data;
             info =
@@ -290,7 +289,6 @@ class _EspacePersonel extends State<EspacePersonel> {
   }
 
   void _choixRole() {
-    // Code pour choisir le rôle
     if (PersonneVaraible().nameType == 'ChefIntervention') {
       setState(() {
         urlImage = "assets/images/personnel.png";
@@ -319,7 +317,7 @@ class _EspacePersonel extends State<EspacePersonel> {
   @override
   void initState() {
     super.initState();
-    _choixRole(); // Appelle la fonction pour définir le rôle
+    _choixRole();
   }
 
   @override
@@ -334,17 +332,15 @@ class _EspacePersonel extends State<EspacePersonel> {
               fontWeight: FontWeight.bold,
             )),
         centerTitle: true,
-        backgroundColor: borderColor, // AppBar rouge
+        backgroundColor: borderColor,
         iconTheme: const IconThemeData(
-          color: Colors
-              .white, // Définit la couleur des icônes de l'AppBar en blanc
+          color: Colors.white,
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(15),
         child: Column(
           children: [
-            // Section de nom/prénom et image
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -352,15 +348,14 @@ class _EspacePersonel extends State<EspacePersonel> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      info ?? 'Inconnu', // Nom à personnaliser
+                      info ?? 'Inconnu',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      role ??
-                          'Rôle non défini', // Affiche le rôle ou une valeur par défaut
+                      role ?? 'Rôle non défini',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
@@ -376,8 +371,6 @@ class _EspacePersonel extends State<EspacePersonel> {
               ],
             ),
             const SizedBox(height: 30),
-
-            // Question "Êtes-vous disponible ?"
             const Text(
               "Êtes-vous disponible ?",
               style: TextStyle(
@@ -403,9 +396,8 @@ class _EspacePersonel extends State<EspacePersonel> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable == true
-                        ? Colors.green
-                        : Colors.grey, // Changer 'primary' en 'backgroundColor'
+                    backgroundColor:
+                        isAvailable == true ? Colors.green : Colors.grey,
                     minimumSize: const Size(120, 50),
                     elevation: 18,
                     shape: RoundedRectangleBorder(
@@ -433,9 +425,8 @@ class _EspacePersonel extends State<EspacePersonel> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable == false
-                        ? Colors.red
-                        : Colors.grey, // Changer 'primary' en 'backgroundColor'
+                    backgroundColor:
+                        isAvailable == false ? Colors.red : Colors.grey,
                     minimumSize: const Size(120, 50),
                     elevation: 18,
                     shape: RoundedRectangleBorder(
@@ -454,13 +445,13 @@ class _EspacePersonel extends State<EspacePersonel> {
             ),
             const SizedBox(height: 50),
             SizedBox(
-              width: 350, // Largeur fixe pour le bouton
+              width: 350,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/changerMotDePasse');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: borderColor, // Couleur identique au contour
+                  backgroundColor: borderColor,
                   minimumSize: Size(200, 50),
                   elevation: 18,
                   shape: RoundedRectangleBorder(
@@ -471,7 +462,7 @@ class _EspacePersonel extends State<EspacePersonel> {
                   'Changer de mot de passe',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Colors.white, // Texte blanc
+                    color: Colors.white,
                   ),
                 ),
               ),

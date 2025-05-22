@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
 
 import 'push_notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,17 +50,26 @@ class _HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         print("Déconnexion réussie");
 
-        // Effacer le token stocké
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+
         PersonneVaraible().token = "";
         PersonneVaraible().nameType = "";
         PersonneVaraible().userId = 0;
 
-        // Rediriger l'utilisateur vers l'écran de connexion
         Navigator.pushReplacementNamed(context, "/login");
       } else {
         throw Exception("Erreur lors de la déconnexion");
       }
     } catch (e) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+
+      PersonneVaraible().token = "";
+      PersonneVaraible().nameType = "";
+      PersonneVaraible().userId = 0;
+
+      Navigator.pushReplacementNamed(context, "/login");
       print("Erreur: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -79,7 +89,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Récupérer la taille de l'écran
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -96,12 +105,12 @@ class _HomePageState extends State<HomePage> {
         ),
         centerTitle: true,
         elevation: 12,
-        automaticallyImplyLeading: false, // Désactive le bouton de retour
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(
               Icons.more_vert,
-              color: Colors.white, // Définit la couleur de l'icône en blanc
+              color: Colors.white,
             ),
             onPressed: () {
               showMenu<String>(
@@ -115,9 +124,9 @@ class _HomePageState extends State<HomePage> {
                     value: 'logout',
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white, // Fond blanc
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black), // Contour noir
+                        border: Border.all(color: Colors.black),
                       ),
                       child: TextButton(
                         onPressed: () {
@@ -149,7 +158,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             SizedBox(height: 40),
-            // Utiliser un ListView pour afficher les boutons en colonne
             Expanded(
               child: ListView(
                 children: [
@@ -173,10 +181,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Image.asset(
                         'assets/images/interventions.png',
-                        width: screenWidth *
-                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
-                        height: screenWidth *
-                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
+                        width: screenWidth * 0.4,
+                        height: screenWidth * 0.4,
                       ),
                     ),
                   ),
@@ -193,10 +199,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Image.asset(
                         urlImage,
-                        width: screenWidth *
-                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
-                        height: screenWidth *
-                            0.4, // Réduire la taille de l'image à 40% de la largeur de l'écran
+                        width: screenWidth * 0.4,
+                        height: screenWidth * 0.4,
                       ),
                     ),
                   ),

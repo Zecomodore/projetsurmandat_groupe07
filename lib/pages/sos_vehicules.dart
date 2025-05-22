@@ -15,6 +15,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
   List alertes = [];
   bool occuper = false;
   int idIntervention = 0;
+  bool loading = true;
 
   Future<void> getIntervention() async {
     try {
@@ -38,7 +39,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
     }
   }
 
-  void vahiculeDispo() async {
+  Future<void> vahiculeDispo() async {
     try {
       String token = PersonneVaraible().token;
       if (token.isEmpty) {
@@ -88,15 +89,27 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
     }
   }
 
+  Future<void> initPage() async {
+    setState(() => loading = true);
+    await vahiculeDispo();
+    await getIntervention();
+    setState(() => loading = false);
+  }
+
   @override
   void initState() {
     super.initState();
-    getIntervention();
-    vahiculeDispo();
+    initPage();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -117,9 +130,7 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () async {
-              await getIntervention();
-              vahiculeDispo();
-              setState(() {});
+              await initPage();
             },
             tooltip: 'Rafraîchir',
           ),
@@ -147,14 +158,10 @@ class _SosVehiculePageState extends State<SosVehiculePage> {
                     child: SosCard(
                       type: alertes[index]['int_description']!,
                       heure: alertes[index]['int_heure']!,
-                      //adresse: alertes[index]['int_adresse']!,
                       id: alertes[index]['int_no']!,
                       occuper: occuper,
                       idRecu: idIntervention,
-                      onRefresh: () async {
-                        await getIntervention();
-                        vahiculeDispo();
-                      },
+                      onRefresh: initPage,
                     ),
                   );
                 },
@@ -189,39 +196,27 @@ class SosCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (occuper == true) {
-          if (idRecu == id) {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DetailsAlerteVehicule(
-                  type: type,
-                  heure: heure,
-                  idIntervention: id,
-                ),
-              ),
-            );
-            await onRefresh(); // Appel ici
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Vous avez déjà une alerte en cours"),
-                backgroundColor: Colors.red,
-                duration: Duration(milliseconds: 500),
-              ),
-            );
-          }
-        } else {
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => DetailsAlerteVehicule(
-                type: type,
-                heure: heure,
-                idIntervention: id,
-              ),
+        if (occuper && idRecu != id) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Vous avez déjà une alerte en cours"),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 1),
             ),
           );
-          await onRefresh(); // Appel ici
+          return;
         }
+
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DetailsAlerteVehicule(
+              type: type,
+              heure: heure,
+              idIntervention: id,
+            ),
+          ),
+        );
+        await onRefresh();
       },
       child: Container(
         decoration: BoxDecoration(
@@ -248,4 +243,3 @@ class SosCard extends StatelessWidget {
     );
   }
 }
-//           ],

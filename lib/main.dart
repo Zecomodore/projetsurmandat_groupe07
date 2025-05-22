@@ -15,12 +15,13 @@ import 'pages/notification_service.dart';
 import 'pages/push_notification_service.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'pages/personne_varaible.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print(
       'Message reçu en arrière-plan ou app fermée : ${message.notification?.title}');
-  // Tu peux aussi afficher une notification locale ici si tu veux
 }
 
 void main() async {
@@ -29,14 +30,22 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await Firebase.initializeApp();
-  await PushNotificationService.basicSetup(); // ← sans besoin de login
+  await PushNotificationService.basicSetup();
   LocalNotificationService.initialize();
 
-  runApp(const MyApp());
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+
+  if (token != null) {
+    PersonneVaraible().token = token;
+  }
+
+  runApp(MyApp(initialRoute: token != null ? '/home' : '/login'));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +56,16 @@ class MyApp extends StatelessWidget {
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 251, 7, 7)),
         primarySwatch: Colors.red,
         popupMenuTheme: PopupMenuThemeData(
-          color: Colors.white, // Fond blanc pour le menu
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.black), // Bordure noire
+            side: BorderSide(color: Colors.black),
           ),
-          elevation: 0, // Enlever l'ombre
+          elevation: 0,
         ),
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
+      initialRoute: initialRoute,
       routes: {
         '/login': (context) => const LoginPage(),
         '/motDePasseOublier': (context) => const Motdepasseoublier(),

@@ -14,6 +14,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
   List alertes = [];
   bool occuper = false;
   int idIntervention = 0;
+  bool loading = true;
 
   Future<void> getIntervention() async {
     try {
@@ -37,7 +38,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
     }
   }
 
-  void utiDispo() async {
+  Future<void> utiDispo() async {
     try {
       String token = PersonneVaraible().token;
       if (token.isEmpty) {
@@ -86,15 +87,27 @@ class _SosPompierPageState extends State<SosPompierPage> {
     }
   }
 
+  Future<void> initPage() async {
+    setState(() => loading = true);
+    await utiDispo();
+    await getIntervention();
+    setState(() => loading = false);
+  }
+
   @override
   void initState() {
     super.initState();
-    getIntervention();
-    utiDispo();
+    initPage();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -115,9 +128,7 @@ class _SosPompierPageState extends State<SosPompierPage> {
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () async {
-              await getIntervention();
-              utiDispo();
-              setState(() {});
+              await initPage();
             },
             tooltip: 'Rafraîchir',
           ),
@@ -145,14 +156,10 @@ class _SosPompierPageState extends State<SosPompierPage> {
                     child: SosCard(
                       type: alertes[index]['int_description']!,
                       heure: alertes[index]['int_heure']!,
-                      //adresse: alertes[index]['int_adresse']!,
                       id: alertes[index]['int_no']!,
                       occuper: occuper,
                       idRecu: idIntervention,
-                      onRefresh: () async {
-                        await getIntervention();
-                        utiDispo();
-                      },
+                      onRefresh: initPage,
                     ),
                   );
                 },
@@ -168,7 +175,6 @@ class _SosPompierPageState extends State<SosPompierPage> {
 class SosCard extends StatelessWidget {
   final String type;
   final String heure;
-  //final String adresse;
   final int id;
   final bool occuper;
   final int idRecu;
@@ -178,7 +184,6 @@ class SosCard extends StatelessWidget {
     super.key,
     required this.type,
     required this.heure,
-    //required this.adresse,
     required this.id,
     required this.occuper,
     required this.idRecu,
@@ -189,43 +194,28 @@ class SosCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (occuper == true) {
-          if (idRecu == id) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailsAlertePompier(
-                  type: type,
-                  heure: heure,
-                  //adresse: adresse,
-                  idIntervention: id,
-                ),
-              ),
-            );
-            await onRefresh(); // Appel ici
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Vous avez déjà une alerte en cours"),
-                backgroundColor: Colors.red,
-                duration: Duration(milliseconds: 500),
-              ),
-            );
-          }
-        } else {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailsAlertePompier(
-                type: type,
-                heure: heure,
-                //adresse: adresse,
-                idIntervention: id,
-              ),
+        if (occuper && idRecu != id) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Vous avez déjà une alerte en cours"),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 1),
             ),
           );
-          await onRefresh(); // Appel ici
+          return;
         }
+
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsAlertePompier(
+              type: type,
+              heure: heure,
+              idIntervention: id,
+            ),
+          ),
+        );
+        await onRefresh();
       },
       child: Container(
         decoration: BoxDecoration(
@@ -239,10 +229,7 @@ class SosCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Info : $type',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text('Info : $type', overflow: TextOverflow.ellipsis),
                   Text('Heure : $heure'),
                 ],
               ),

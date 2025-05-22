@@ -11,12 +11,21 @@ class ChangerMotDePasse extends StatefulWidget {
 }
 
 class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
-  String mdp = ''; // Variable pour stocker le mot de passe
-  String mpdConfirme =
-      ''; // Variable pour stocker la confirmation du mot de passe
+  String mdp = '';
+  String mpdConfirme = '';
+  bool _obscurePassword1 = true;
+  bool _obscurePassword2 = true;
 
   void chagerMotDePasse({String? mdp, String? mpdConfirme}) async {
-    // Affichage des valeurs dans la console (peut être remplacé par une API)
+    if (mdp != mpdConfirme) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Les mots de passe ne correspondent pas."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     try {
       String token = PersonneVaraible().token;
@@ -45,10 +54,11 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text("Chamgement validé"),
-              backgroundColor: const Color.fromARGB(255, 54, 244, 54)),
+            content: Text("Changement validé"),
+            backgroundColor: const Color.fromARGB(255, 54, 244, 54),
+          ),
         );
-        PersonneVaraible().token = ''; // Réinitialiser le token
+        PersonneVaraible().token = '';
         PersonneVaraible().nameType = '';
         PersonneVaraible().userId = 0;
         Navigator.of(context).pushAndRemoveUntil(
@@ -56,13 +66,15 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
           (Route<dynamic> route) => false,
         );
       } else {
-        throw Exception("Erreur lors de la déconnexion");
+        throw Exception("Erreur lors de la modification");
       }
     } catch (e) {
       print("Erreur: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("Chamgement échoué"), backgroundColor: Colors.red),
+          content: Text("Changement échoué"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -75,17 +87,14 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(''),
-        backgroundColor: borderColor, // AppBar rouge
-        iconTheme: const IconThemeData(
-          color: Colors
-              .white, // Définit la couleur des icônes de l'AppBar en blanc
-        ),
+        backgroundColor: borderColor,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Centrer les éléments
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
                 'Veuillez entrer le nouveau mot de passe',
@@ -97,13 +106,14 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: 350, // Largeur fixe pour le champ de texte
+                width: 350,
                 child: TextField(
                   cursorColor: Colors.black,
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                   ),
+                  obscureText: _obscurePassword1,
                   decoration: InputDecoration(
                     labelText: "Nouveau mot de passe",
                     labelStyle: const TextStyle(color: Colors.black),
@@ -113,9 +123,22 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
                     focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 251, 7, 7), // Rouge au focus
+                        color: Color.fromARGB(255, 251, 7, 7),
                         width: 2.0,
                       ),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword1
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword1 = !_obscurePassword1;
+                        });
+                      },
                     ),
                   ),
                   onChanged: (value) => setState(() => mdp = value),
@@ -132,15 +155,16 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: 350, // Largeur fixe pour le champ de texte
+                width: 350,
                 child: TextField(
                   cursorColor: Colors.black,
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                   ),
+                  obscureText: _obscurePassword2,
                   decoration: InputDecoration(
-                    labelText: "Nouveau mot de passe",
+                    labelText: "Confirmez le mot de passe",
                     labelStyle: const TextStyle(color: Colors.black),
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -148,9 +172,22 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
                     focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 251, 7, 7), // Rouge au focus
+                        color: Color.fromARGB(255, 251, 7, 7),
                         width: 2.0,
                       ),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword2
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword2 = !_obscurePassword2;
+                        });
+                      },
                     ),
                   ),
                   onChanged: (value) => setState(() => mpdConfirme = value),
@@ -158,19 +195,14 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: 350, // Largeur fixe pour le bouton
+                width: 350,
                 child: ElevatedButton(
                   onPressed: () {
-                    chagerMotDePasse(
-                        mdp: mdp,
-                        mpdConfirme:
-                            mpdConfirme); // Appel de la méthode de changement de mot de passe
-                    // Ajouter le code pour envoyer un e-mail de réinitialisation
+                    chagerMotDePasse(mdp: mdp, mpdConfirme: mpdConfirme);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        borderColor, // Couleur identique au contour
-                    minimumSize: Size(200, 50),
+                    backgroundColor: borderColor,
+                    minimumSize: const Size(200, 50),
                     elevation: 18,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -180,7 +212,7 @@ class _ChangerMotDePasseState extends State<ChangerMotDePasse> {
                     'Valider',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.white, // Texte blanc
+                      color: Colors.white,
                     ),
                   ),
                 ),

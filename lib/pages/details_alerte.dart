@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
 
@@ -8,14 +7,12 @@ import 'dart:async';
 class DetailsAlerte extends StatefulWidget {
   final String type;
   final String heure;
-  //final String adresse;
   final int interventionId;
 
   const DetailsAlerte({
     super.key,
     required this.type,
     required this.heure,
-    //required this.adresse,
     required this.interventionId,
   });
 
@@ -29,55 +26,6 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
 
   bool isDisponible = true;
   Timer? _autoRefreshTimer;
-
-  /*
-  final List<Map<String, String>> personnes = [
-    {'prenom': 'Alice', 'nom': 'Dupont'},
-    {'prenom': 'Bob', 'nom': 'Martin'},
-    {'prenom': 'Claire', 'nom': 'Leclerc'},
-    {'prenom': 'David', 'nom': 'Lemoine'},
-    {'prenom': 'Eva', 'nom': 'Benoit'},
-    {'prenom': 'Franck', 'nom': 'Pires'},
-  ];
-  */
-/*
-  final List<String> vehicules = [
-    'Véhicule 1',
-    'Véhicule 2',
-  ];
-  */
-
-  /*
-  void _openGoogleMaps(String adresse) async {
-    Uri googleUrl;
-
-    if (Uri.tryParse(adresse) != null) {
-      if (await canLaunchUrl(
-          Uri.parse("geo:0,0?q=${Uri.encodeComponent(adresse)}"))) {
-        googleUrl =
-            Uri.parse("geo:0,0?q=${Uri.encodeComponent(adresse)}"); // Android
-      } else {
-        googleUrl = Uri.parse(
-            "https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(adresse)}"); // Web/iOS
-      }
-
-      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw "Adresse non valide";
-    }
-  }
-  */
-  /*
-  void _openGoogleMaps() async {
-    final Uri googleUrl = Uri.parse("https://www.google.com/maps");
-
-    if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw "Impossible d’ouvrir Google Maps";
-    }
-  }
-  */
 
   void _showRenfortPopup() {
     showDialog(
@@ -93,16 +41,10 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 20),
           ),
-          /*
-          content: const Text(
-            'La demande de renfort a bien été envoyée.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),*/
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Ferme le pop-up
+                Navigator.pop(context);
               },
               child: const Text('OK'),
             ),
@@ -110,12 +52,6 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
         );
       },
     );
-    /*
-    // Fermer automatiquement le pop-up après 2 secondes (2000 millisecondes)
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Ferme la boîte de dialogue après 2 secondes
-    });
-    */
   }
 
   void finAlerte() async {
@@ -416,7 +352,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
 
   @override
   void dispose() {
-    _autoRefreshTimer?.cancel(); // 👈 Arrêt du timer quand on quitte l'écran
+    _autoRefreshTimer?.cancel();
     super.dispose();
   }
 
@@ -463,20 +399,12 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
                 'Heure : ${widget.heure}',
                 style: const TextStyle(fontSize: 18),
               ),
-              /*
-              const SizedBox(height: 10),
-              Text(
-                'Adresse : ${widget.adresse}',
-                style: const TextStyle(fontSize: 18),
-              ),
-              */
               const SizedBox(height: 10),
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all<Color>(isDisponible
-                          ? const Color.fromARGB(255, 3, 183, 60) // Vert
-                          : const Color.fromARGB(255, 251, 7, 7) // Rouge
-                      ),
+                      ? const Color.fromARGB(255, 3, 183, 60)
+                      : const Color.fromARGB(255, 251, 7, 7)),
                   minimumSize:
                       WidgetStateProperty.all<Size>(const Size(400, 50)),
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -497,14 +425,6 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
                   style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-              /*
-              ElevatedButton(
-                onPressed: () {
-                  _openGoogleMaps();
-                },
-                child: Text("Voir sur Google Maps"),
-              ),
-              */
               const SizedBox(height: 20),
               Text(
                 'Personnel disponible : ${personnes.length}',
@@ -597,7 +517,7 @@ class _DetailsAlerteState extends State<DetailsAlerte> {
                     finAlerte();
                   },
                   child: Text(
-                    'Alerte terminer',
+                    'Alerte terminée',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,

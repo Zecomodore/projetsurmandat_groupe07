@@ -90,7 +90,7 @@ class _SosPageState extends State<SosPage> {
                 final result =
                     await Navigator.pushNamed(context, '/creationAlerte');
                 if (result == true) {
-                  await getIntervention(); // Rafraîchir les données
+                  await getIntervention();
                   setState(() {});
                 }
               },
@@ -120,7 +120,6 @@ class _SosPageState extends State<SosPage> {
                     child: SosCard(
                       type: alertes[index]['int_description']!,
                       heure: alertes[index]['int_heure']!,
-                      //adresse: alertes[index]['int_adresse']!,
                       id: alertes[index]['int_no']!,
                       onRefresh: () async {
                         await getIntervention();
@@ -141,7 +140,6 @@ class _SosPageState extends State<SosPage> {
 class SosCard extends StatelessWidget {
   final String type;
   final String heure;
-  //final String adresse;
   final int id;
   final Function onRefresh;
 
@@ -149,7 +147,6 @@ class SosCard extends StatelessWidget {
     super.key,
     required this.type,
     required this.heure,
-    //required this.adresse,
     required this.id,
     required this.onRefresh,
   });
@@ -164,7 +161,6 @@ class SosCard extends StatelessWidget {
             builder: (context) => DetailsAlerte(
               type: type,
               heure: heure,
-              //adresse: adresse,
               interventionId: id,
             ),
           ),
@@ -191,7 +187,6 @@ class SosCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text('Heure : $heure'),
-                  // Text('Adresse : $adresse'),
                 ],
               ),
             ),

@@ -10,7 +10,6 @@ class CreationAlerte extends StatefulWidget {
 }
 
 class _CreationAlerteState extends State<CreationAlerte> {
-  // Déclaration des contrôleurs pour stocker les entrées utilisateur
   final TextEditingController titreController = TextEditingController();
   final TextEditingController adresseController = TextEditingController();
   final TextEditingController infoController = TextEditingController();
@@ -52,13 +51,8 @@ class _CreationAlerteState extends State<CreationAlerte> {
     );
   }
 
-  // Fonction appelée lors de l'envoi de l'alerte
   void envoyerAlerte() async {
     String titre = titreController.text;
-    //String adresse = adresseController.text;
-    //String info = infoController.text;
-
-    // Affichage des valeurs dans la console (peut être remplacé par une API)
 
     try {
       String token = PersonneVaraible().token;
@@ -80,8 +74,6 @@ class _CreationAlerteState extends State<CreationAlerte> {
         "/interventions",
         queryParameters: {
           'int_description': titre,
-          //'int_adresse': adresse,
-          //'int_commentaire': info,
         },
       );
 
@@ -165,14 +157,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Champs de texte avec contrôleurs
               buildTextField('Titre de l\'alerte', 10, titreController),
-              /*
-              buildTextField('Adresse de l\'alerte', 3, adresseController),
-              buildTextField(
-                  'Informations complémentaires (facultatif)', 8, infoController),*/
-
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all<Color>(
@@ -189,7 +174,7 @@ class _CreationAlerteState extends State<CreationAlerte> {
                 onPressed: () {
                   envoyerAlerte();
                   envoyerNotification();
-                }, // Appelle la fonction lors du clic
+                },
                 child: const Text(
                   'Envoyer l\'alerte',
                   style: TextStyle(

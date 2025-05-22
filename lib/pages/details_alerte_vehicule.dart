@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
@@ -58,16 +57,6 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
     int minutes = seconds ~/ 60;
     int secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  void _openGoogleMaps() async {
-    final Uri googleUrl = Uri.parse("https://www.google.com/maps");
-
-    if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-    } else {
-      throw "Impossible d’ouvrir Google Maps";
-    }
   }
 
   void vahiculeDisponible() async {
@@ -357,18 +346,13 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
         (etat == ChronometreEtat.lancer || etat == ChronometreEtat.arreter);
     chronometreArreter = (etat == ChronometreEtat.arreter);
     _seconds = secondes;
-    /*
-    if (chronometreLancer == true && chronometreArreter == false) {
-      _startTimer();
-    }
-    */
 
     vahiculeEtat();
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // On arrête le timer proprement
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -471,14 +455,6 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                 FractionallySizedBox(
                   widthFactor: 0.9,
                   child: ElevatedButton(
-                    onPressed: () => _openGoogleMaps(),
-                    child: const Text("Voir sur Google Maps"),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.03),
-                FractionallySizedBox(
-                  widthFactor: 0.9,
-                  child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: interventionTerminer,
                       padding:
@@ -493,7 +469,7 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                         VehiculeTemps().tempsEnSecondes = 0;
                       }
                     },
-                    child: const Text('Intervention terminée',
+                    child: const Text('Mon intervention terminée',
                         style: TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                 ),

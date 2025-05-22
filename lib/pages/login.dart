@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'personne_varaible.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -19,7 +21,6 @@ class _MyLoginPage extends State<LoginPage> {
   bool _obscurePassword = true;
 
   Future<void> login({String? email, String? password}) async {
-    // Code pour la connexion
     try {
       final response = await dio.post(
         //http://10.0.2.2:8000/api/auth pour l'émulateur android
@@ -36,6 +37,8 @@ class _MyLoginPage extends State<LoginPage> {
           PersonneVaraible().nameType = response.data['name'];
           PersonneVaraible().userId = response.data['userId'];
         });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', response.data['token']);
       } else {
         throw Exception('Utillisateurs ou mot de passe incorrect');
       }
@@ -53,24 +56,22 @@ class _MyLoginPage extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final borderColor = const Color.fromARGB(255, 251, 7, 7);
-    final size = MediaQuery.of(context).size; // Récupérer la taille de l'écran
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        // Centre le contenu pour éviter le débordement
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize
-                  .min, // Ajuste la taille pour éviter le débordement
+              mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  height: size.height * 0.25, // Adapte la hauteur au viewport
+                  height: size.height * 0.25,
                   child: Image.asset('assets/images/logo.png'),
                 ),
-                const SizedBox(height: 40), // Adapte la hauteur au viewport
+                const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -145,8 +146,7 @@ class _MyLoginPage extends State<LoginPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: borderColor,
-                    minimumSize:
-                        Size(size.width * 0.7, 50), // Ajustement dynamique
+                    minimumSize: Size(size.width * 0.7, 50),
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -159,7 +159,6 @@ class _MyLoginPage extends State<LoginPage> {
                           'Connexion réussie : ${PersonneVaraible().token} ${PersonneVaraible().nameType} ${PersonneVaraible().userId}');
                       Navigator.pushNamed(context, '/home');
                     }
-                    //Navigator.pushNamed(context, '/home');
                   },
                   child: const Text(
                     "Se connecter",

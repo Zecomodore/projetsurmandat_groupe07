@@ -116,13 +116,13 @@ class _ValidationCodeMailState extends State<ValidationCodeMail> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Entrer le code reçu par mail',
+                'Entrez le code reçu par mail',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
               ),

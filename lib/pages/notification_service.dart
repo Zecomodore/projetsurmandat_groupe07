@@ -17,7 +17,6 @@ class LocalNotificationService {
 
     await _notificationsPlugin.initialize(initializationSettings);
 
-    // 🔧 Créer un vrai AndroidNotificationChannel (non const)
     const channel = AndroidNotificationChannel(
       'default_channel',
       'Notifications',
@@ -25,7 +24,6 @@ class LocalNotificationService {
       importance: Importance.high,
     );
 
-    // 🔧 Enregistrer le canal après initialisation
     final androidPlugin =
         _notificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
@@ -38,14 +36,14 @@ class LocalNotificationService {
   static void showNotification(RemoteMessage message) {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'emergency_channel', // ⚠️ Utilise le même ID que dans createNotificationChannel
-      'Alerte d\'intervention', // Nom du canal
+      'emergency_channel',
+      'Alerte d\'intervention',
       channelDescription: 'Notification d’urgence pour interventions',
-      importance: Importance.max, // 🔊 Priorité maximale
+      importance: Importance.max,
       priority: Priority.high,
-      playSound: true, // ✅ Son système
-      enableVibration: true, // ✅ Vibration
-      ticker: 'Nouvelle intervention !', // 📢 Texte de survol Android
+      playSound: true,
+      enableVibration: true,
+      ticker: 'Nouvelle intervention !',
     );
 
     const NotificationDetails details = NotificationDetails(
@@ -53,7 +51,7 @@ class LocalNotificationService {
     );
 
     _notificationsPlugin.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000, // ID unique
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       message.notification?.title ?? 'Nouvelle intervention',
       message.notification?.body ?? 'Une nouvelle intervention est disponible.',
       details,

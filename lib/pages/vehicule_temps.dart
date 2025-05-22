@@ -7,7 +7,6 @@ class VehiculeTemps {
 
   VehiculeTemps._internal();
 
-  // Définir un état pour le chronomètre
   ChronometreEtat etatChronometre = ChronometreEtat.arreter;
   int tempsEnSecondes = 0;
 }
