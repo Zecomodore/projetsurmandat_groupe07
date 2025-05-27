@@ -28,6 +28,8 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
   bool? chronometreArreter = false;
   Timer? _timer;
   int _seconds = 0;
+  bool? depart = true;
+  bool? arrivee = true;
 
   void _startTimer() {
     _timer?.cancel();
@@ -410,7 +412,8 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                               borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
-                          if (chronometreLancer == false) {
+                          if (chronometreLancer == false && depart == true) {
+                            depart = false;
                             vahiculeDisponible();
                             notifDepartVehicule();
                           }
@@ -432,7 +435,9 @@ class _DetailsAlerteVehiculeState extends State<DetailsAlerteVehicule> {
                         ),
                         onPressed: () {
                           if (chronometreLancer == true &&
-                              chronometreArreter == false) {
+                              chronometreArreter == false &&
+                              arrivee == true) {
+                            arrivee = false;
                             vahiculeArrivee();
                             notifArriveVehicule();
                           }

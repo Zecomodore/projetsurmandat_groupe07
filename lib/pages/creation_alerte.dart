@@ -14,26 +14,20 @@ class _CreationAlerteState extends State<CreationAlerte> {
   final TextEditingController adresseController = TextEditingController();
   final TextEditingController infoController = TextEditingController();
 
+  bool isLoading = false;
+
   Widget buildTextField(
       String label, int maxLines, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-          ),
-        ),
+        Text(label, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 5),
         TextField(
           controller: controller,
           maxLines: maxLines,
           cursorColor: Colors.black,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontSize: 16),
           decoration: InputDecoration(
             hintStyle: const TextStyle(color: Colors.grey),
             border: OutlineInputBorder(
@@ -51,19 +45,17 @@ class _CreationAlerteState extends State<CreationAlerte> {
     );
   }
 
-  void envoyerAlerte() async {
-    String titre = titreController.text;
-
+  Future<void> envoyerAlerte() async {
+    setState(() => isLoading = true);
     try {
+      String titre = titreController.text;
       String token = PersonneVaraible().token;
-      if (token.isEmpty) {
-        throw Exception("Aucun token trouvé !");
-      }
+      if (token.isEmpty) throw Exception("Aucun token trouvé !");
 
       Dio dio = Dio(BaseOptions(
         baseUrl: "http://10.0.2.2:8000/api",
-        connectTimeout: Duration(seconds: 20),
-        receiveTimeout: Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
@@ -72,119 +64,102 @@ class _CreationAlerteState extends State<CreationAlerte> {
 
       final response = await dio.post(
         "/interventions",
-        queryParameters: {
-          'int_description': titre,
-        },
+        queryParameters: {'int_description': titre},
       );
 
       if (response.statusCode == 200) {
+        await envoyerNotification(); // on attend aussi la notification
         Navigator.pop(context, true);
       } else {
-        throw Exception("Erreur lors de la déconnexion");
+        throw Exception("Erreur lors de la création de l'intervention");
       }
     } catch (e) {
       print("Erreur: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Envoie de l'intervention à échoué"),
-            backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text("Envoi de l'intervention échoué"),
+          backgroundColor: Colors.red,
+        ),
       );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
-  void envoyerNotification() async {
+  Future<void> envoyerNotification() async {
     try {
       String token = PersonneVaraible().token;
-      if (token.isEmpty) {
-        throw Exception("Aucun token trouvé !");
-      }
+      if (token.isEmpty) throw Exception("Aucun token trouvé !");
 
       Dio dio = Dio(BaseOptions(
         baseUrl: "http://10.0.2.2:8000/api",
-        connectTimeout: Duration(seconds: 20),
-        receiveTimeout: Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
         },
       ));
 
-      final response = await dio.get("/send-firebase-notification");
-
-      if (response.statusCode == 200) {
-      } else {
-        throw Exception("Erreur lors de l'envoie");
-      }
+      await dio.get("/send-firebase-notification");
     } catch (e) {
-      print("Erreur: $e");
+      print("Erreur envoi notif: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Envoie des notifications échoué"),
-            backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text("Envoi des notifications échoué"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const redColor = Color.fromARGB(255, 251, 7, 7);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Création d\'alerte',
           style: TextStyle(
-            fontSize: 24,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+              fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 251, 7, 7),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        backgroundColor: redColor,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              const Text(
-                'Information alerte',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Text(
+              'Information alerte',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            buildTextField('Titre de l\'alerte', 10, titreController),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : envoyerAlerte,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isLoading ? Colors.grey : redColor,
+                  minimumSize: const Size(400, 50),
+                  elevation: 18,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Envoyer l\'alerte',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
               ),
-              const SizedBox(height: 20),
-              buildTextField('Titre de l\'alerte', 10, titreController),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      const Color.fromARGB(255, 251, 7, 7)),
-                  minimumSize:
-                      WidgetStateProperty.all<Size>(const Size(400, 50)),
-                  elevation: WidgetStateProperty.all<double>(18),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  envoyerAlerte();
-                  envoyerNotification();
-                },
-                child: const Text(
-                  'Envoyer l\'alerte',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
